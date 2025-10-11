@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for admin authentication
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  role      Role       @default(ADMIN)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  blogPosts BlogPost[] // Relation to blog posts
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
+// Services model
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  features    String[] // Array of features
+  icon        String?  // Icon name/identifier
+  imageUrl    String?
+  price       String?
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+// Projects model
+model Project {
+  id             String   @id @default(cuid())
+  title          String
+  category       String
+  description    String
+  imageUrl       String?
+  completionDate DateTime?
+  clientName     String?
+  status         Status   @default(ACTIVE)
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("projects")
+}
+
+// Blog posts model
+model BlogPost {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  content        String
+  excerpt        String?
+  authorId       String
+  imageUrl       String?
+  status         PublishStatus  @default(DRAFT)
+  publishedAt    DateTime?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  
+  author         User           @relation(fields: [authorId], references: [id])
+  categories     PostCategory[]
+
+  @@map("blog_posts")
+}
+
+// Blog categories model
+model BlogCategory {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  posts       PostCategory[]
+
+  @@map("blog_categories")
+}
+
+// Junction table for blog posts and categories
+model PostCategory {
+  postId     String
+  categoryId String
+  
+  post       BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@map("post_categories")
+}
+
+// Team members model
+model TeamMember {
+  id           String   @id @default(cuid())
+  name         String
+  position     String
+  bio          String?
+  imageUrl     String?
+  email        String?
+  phone        String?
+  linkedin     String?
+  status       Status   @default(ACTIVE)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("team_members")
+}
+
+// Testimonials model
+model Testimonial {
+  id          String   @id @default(cuid())
+  clientName  String
+  position    String?
+  company     String?
+  content     String
+  imageUrl    String?
+  rating      Int      @default(5)
+  status      Status   @default(ACTIVE)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+// Company settings model
+model CompanySetting {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  value       String
+  type        SettingType @default(TEXT)
+  description String?
+  updatedAt   DateTime    @updatedAt
+
+  @@map("company_settings")
+}
+
+// Contact form submissions model
+model ContactSubmission {
+  id        String            @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    SubmissionStatus  @default(UNREAD)
+  createdAt DateTime          @default(now())
+
+  @@map("contact_submissions")
+}
+
+// Enums
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SettingType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+enum SubmissionStatus {
+  UNREAD
+  READ
+  REPLIED
+  ARCHIVED
+}
