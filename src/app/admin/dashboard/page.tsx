@@ -20,6 +20,8 @@ interface DashboardStats {
   projects: number;
   teamMembers: number;
   testimonials: number;
+  contactMessages: number;
+  newMessages: number;
 }
 
 export default function AdminDashboard() {
@@ -27,23 +29,28 @@ export default function AdminDashboard() {
     services: 0,
     projects: 0,
     teamMembers: 0,
-    testimonials: 0
+    testimonials: 0,
+    contactMessages: 0,
+    newMessages: 0
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [servicesRes, projectsRes] = await Promise.all([
+        const [servicesRes, projectsRes, contactRes] = await Promise.all([
           apiClient.getServices(),
-          apiClient.getProjects()
+          apiClient.getProjects(),
+          fetch('/api/contact').then(res => res.json())
         ]);
 
         setStats({
           services: servicesRes.data?.length || 0,
           projects: projectsRes.data?.length || 0,
           teamMembers: 4, // Placeholder
-          testimonials: 1 // Placeholder
+          testimonials: 1, // Placeholder
+          contactMessages: contactRes.stats?.total || 0,
+          newMessages: contactRes.stats?.new || 0
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -81,12 +88,12 @@ export default function AdminDashboard() {
       textColor: 'text-purple-600',
     },
     {
-      name: 'Testimonials',
-      value: stats.testimonials,
-      icon: Star,
-      color: 'bg-yellow-500',
-      bgColor: 'bg-yellow-50',
-      textColor: 'text-yellow-600',
+      name: 'Contact Messages',
+      value: stats.contactMessages,
+      icon: MessageSquare,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-50',
+      textColor: 'text-indigo-600',
     },
   ];
 
@@ -119,21 +126,21 @@ export default function AdminDashboard() {
 
   return (
     <AdminDashboardLayout title="Dashboard">
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Welcome Section */}
-        <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-2xl p-6 lg:p-8 text-white overflow-hidden">
+        <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-2xl p-5 lg:p-6 text-white overflow-hidden">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
           <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-white/5 rounded-full"></div>
           <div className="relative z-10">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-3">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center mb-2">
+              <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center mr-3">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8z" clipRule="evenodd" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl lg:text-3xl font-bold mb-1">Welcome Back, Admin!</h1>
-                <p className="text-blue-100 text-base lg:text-lg">Forever Shine Engineering Dashboard</p>
+                <h1 className="text-xl lg:text-2xl font-bold mb-1">Welcome Back, Admin!</h1>
+                <p className="text-blue-100 text-sm lg:text-base">Forever Shine Engineering Dashboard</p>
               </div>
             </div>
             <p className="text-blue-50 text-sm lg:text-base leading-relaxed">
@@ -143,16 +150,16 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {statsCards.map((card, index) => (
-            <div key={card.name} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-5 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
+            <div key={card.name} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className={`p-4 rounded-2xl bg-gradient-to-r shadow-md group-hover:shadow-lg transition-shadow ${
                     index === 0 ? 'from-blue-500 to-blue-600' :
                     index === 1 ? 'from-green-500 to-green-600' :
                     index === 2 ? 'from-purple-500 to-purple-600' :
-                    'from-orange-500 to-orange-600'
+                    'from-indigo-500 to-indigo-600'
                   }`}>
                     <card.icon className="h-6 w-6 text-white" />
                   </div>
@@ -184,7 +191,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Recent Activity */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
             <div className="p-6 border-b border-gray-100">

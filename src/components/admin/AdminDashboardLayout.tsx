@@ -36,13 +36,17 @@ export default function AdminDashboardLayout({ children, title }: AdminDashboard
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
+      {/* Sidebar - Fixed Left Column */}
       <AdminSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       
-      <div className="lg:ml-64">
+      {/* Main Content Area - Right Column */}
+      <div className="lg:ml-64 flex flex-col min-h-screen">
+        {/* Header - Fixed at top of content area */}
         <AdminHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} title={title} />
         
-        <main className="p-6 lg:px-8 lg:py-6">
-          <div className="max-w-7xl mx-auto">
+        {/* Main Content - Scrollable */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 lg:p-6">
             {children}
           </div>
         </main>

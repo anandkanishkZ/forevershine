@@ -166,6 +166,38 @@ class ApiClient {
     return this.request<any[]>('/contact/submissions');
   }
 
+  async submitContactForm(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+  }) {
+    return this.request<any>('/contact', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async updateContactSubmissionStatus(id: string, status: 'UNREAD' | 'READ' | 'REPLIED' | 'ARCHIVED') {
+    return this.request<any>(`/contact/submissions/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async deleteContactSubmission(id: string) {
+    return this.request<any>(`/contact/submissions/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Blog Posts
   async getBlogPosts(params?: { page?: number; limit?: number; search?: string }) {
     const searchParams = new URLSearchParams();

@@ -20,8 +20,6 @@ export interface ServiceData {
   description: string;
   features: string[];
   icon?: string;
-  imageUrl?: string;
-  price?: string;
   status?: 'ACTIVE' | 'INACTIVE';
 }
 

@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
-import { ApiResponse, ServiceData, PaginationQuery } from '../types';
+import { ApiResponse, ServiceData, PaginationQuery, AuthRequest } from '../types';
 import { body, validationResult } from 'express-validator';
+import { authenticate, authorize } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -87,12 +88,16 @@ router.get('/:id', async (req: Request, res: Response<ApiResponse>) => {
   }
 });
 
-// Create new service (admin only - auth middleware needed)
-router.post('/', [
-  body('title').notEmpty().withMessage('Title is required'),
-  body('description').notEmpty().withMessage('Description is required'),
-  body('features').isArray().withMessage('Features must be an array')
-], async (req: Request<{}, ApiResponse, ServiceData>, res: Response<ApiResponse>) => {
+// Create new service (admin only)
+router.post('/', 
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN']),
+  [
+    body('title').notEmpty().withMessage('Title is required'),
+    body('description').notEmpty().withMessage('Description is required'),
+    body('features').isArray().withMessage('Features must be an array')
+  ], 
+  async (req: AuthRequest, res: Response<ApiResponse>) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -103,7 +108,7 @@ router.post('/', [
       });
     }
 
-    const serviceData = req.body;
+    const serviceData: ServiceData = req.body;
     
     const service = await prisma.service.create({
       data: serviceData
@@ -124,12 +129,16 @@ router.post('/', [
   }
 });
 
-// Update service (admin only - auth middleware needed)
-router.put('/:id', [
-  body('title').optional().notEmpty().withMessage('Title cannot be empty'),
-  body('description').optional().notEmpty().withMessage('Description cannot be empty'),
-  body('features').optional().isArray().withMessage('Features must be an array')
-], async (req: Request<{ id: string }, ApiResponse, Partial<ServiceData>>, res: Response<ApiResponse>) => {
+// Update service (admin only)
+router.put('/:id', 
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN']),
+  [
+    body('title').optional().notEmpty().withMessage('Title cannot be empty'),
+    body('description').optional().notEmpty().withMessage('Description cannot be empty'),
+    body('features').optional().isArray().withMessage('Features must be an array')
+  ], 
+  async (req: AuthRequest, res: Response<ApiResponse>) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -141,7 +150,7 @@ router.put('/:id', [
     }
 
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData: Partial<ServiceData> = req.body;
 
     const service = await prisma.service.update({
       where: { id },
@@ -171,8 +180,11 @@ router.put('/:id', [
   }
 });
 
-// Delete service (admin only - auth middleware needed)
-router.delete('/:id', async (req: Request, res: Response<ApiResponse>) => {
+// Delete service (admin only)
+router.delete('/:id', 
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN']),
+  async (req: AuthRequest, res: Response<ApiResponse>) => {
   try {
     const { id } = req.params;
 

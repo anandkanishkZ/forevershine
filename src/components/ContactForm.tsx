@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from './Button';
+import { apiClient } from '@/utils/admin/apiClient';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -19,14 +20,16 @@ const ContactForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
+    setSubmitSuccess(false);
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await apiClient.submitContactForm(formData);
+
+      // Success
       setSubmitSuccess(true);
       setFormData({
         name: '',
@@ -40,7 +43,13 @@ const ContactForm = () => {
       setTimeout(() => {
         setSubmitSuccess(false);
       }, 5000);
-    }, 1500);
+
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

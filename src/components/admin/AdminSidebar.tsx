@@ -14,7 +14,9 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  ExternalLink,
+  Mail
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -46,6 +48,11 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       name: 'Blog Posts',
       href: '/admin/blog',
       icon: MessageSquare,
+    },
+    {
+      name: 'Contact Messages',
+      href: '/admin/contact',
+      icon: Mail,
     },
     {
       name: 'Team Members',
@@ -81,21 +88,21 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } overflow-hidden`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between h-20 px-6 border-b border-slate-700/50">
+          <div className="flex items-center justify-between h-16 px-4 border-b border-slate-700/50 flex-shrink-0">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-lg">FS</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-sm">FS</span>
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-white">Forever Shine</h1>
+                    <h1 className="text-lg font-bold text-white">Forever Shine</h1>
                     <p className="text-xs text-slate-400">Engineering Admin</p>
                   </div>
                 </div>
@@ -110,22 +117,22 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           </div>
 
           {/* User Info */}
-          <div className="px-6 py-6 border-b border-slate-700/50">
+          <div className="px-4 py-4 border-b border-slate-700/50 flex-shrink-0">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                  <span className="text-lg font-bold text-white">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <span className="text-sm font-bold text-white">
                     {user?.email?.charAt(0).toUpperCase() || 'A'}
                   </span>
                 </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-semibold text-white">
+              <div className="ml-3">
+                <p className="text-sm font-semibold text-white truncate">
                   {user?.email || 'Administrator'}
                 </p>
                 <p className="text-xs text-slate-400">System Administrator</p>
-                <div className="mt-1">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <div className="mt-0.5">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Online
                   </span>
                 </div>
@@ -134,37 +141,52 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           </div>
 
           {/* Navigation */}
-          <div className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
-                      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-md hover:translate-x-1'
-                  }`}
-                >
-                  <item.icon
-                    className={`mr-3 h-5 w-5 transition-all duration-300 ${
-                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-white group-hover:scale-110'
+          <div className="flex-1 px-3 py-3 overflow-hidden">
+            <div className="space-y-1 h-full overflow-y-auto scrollbar-hide">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                        : 'text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-md hover:translate-x-1'
                     }`}
-                  />
-                  {item.name}
+                  >
+                    <item.icon
+                      className={`mr-3 h-4 w-4 transition-all duration-300 ${
+                        isActive ? 'text-white' : 'text-slate-400 group-hover:text-white group-hover:scale-110'
+                      }`}
+                    />
+                    {item.name}
+                  </Link>
+                );
+              })}
+              
+              {/* Visit Site Link */}
+              <div className="pt-3 mt-3 border-t border-slate-700/30">
+                <Link
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center px-3 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:bg-gradient-to-r hover:from-emerald-600/20 hover:to-teal-600/20 hover:text-emerald-400 transition-all duration-300 hover:shadow-md hover:translate-x-1"
+                >
+                  <ExternalLink className="mr-3 h-4 w-4 text-slate-400 group-hover:text-emerald-400 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+                  Visit Site
                 </Link>
-              );
-            })}
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
-          <div className="px-3 py-4 border-t border-slate-700/50">
+          <div className="px-3 py-3 border-t border-slate-700/50 flex-shrink-0">
             <button
               onClick={handleLogout}
-              className="group flex items-center w-full px-3 py-3 text-sm font-medium text-slate-300 rounded-lg hover:bg-red-600/20 hover:text-red-400 transition-all duration-300 hover:shadow-md hover:translate-x-1"
+              className="group flex items-center w-full px-3 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:bg-red-600/20 hover:text-red-400 transition-all duration-300 hover:shadow-md hover:translate-x-1"
             >
-              <LogOut className="mr-3 h-5 w-5 text-slate-400 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300" />
+              <LogOut className="mr-3 h-4 w-4 text-slate-400 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300" />
               Sign Out
             </button>
           </div>

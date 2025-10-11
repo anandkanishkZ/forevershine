@@ -1,575 +1,746 @@
-'use client';
+'use client';'use client';
 
-import React, { useState } from 'react';
-import SectionTitle from '@/components/SectionTitle';
-import ProjectCard from '@/components/ProjectCard';
-import TestimonialCard from '@/components/TestimonialCard';
-import Button from '@/components/Button';
-import Image from 'next/image';
+
+
+import React, { useState, useEffect } from 'react';import React, { useState, useEffect } from 'react';
+
+import Button from '@/components/Button';import SectionTitle from '@/components/SectionTitle';
+
+import publicApiClient, { Project } from '@/utils/publicApiClient';import Button from '@/components/Button';
+
+import { Search, Star, Calendar, Building, User, Loader2 } from 'lucide-react';import publicApiClient, { Project } from '@/utils/publicApiClient';
+
+import { Search, Filter, Star, Calendar, Building, User, Loader2 } from 'lucide-react';
 
 const Projects = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const [projects, setProjects] = useState<Project[]>([]);const Projects = () => {
+
+  const [loading, setLoading] = useState(true);  const [projects, setProjects] = useState<Project[]>([]);
+
+  const [error, setError] = useState<string | null>(null);  const [loading, setLoading] = useState(true);
+
+  const [selectedCategory, setSelectedCategory] = useState('all');  const [error, setError] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState('');  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);  const [searchTerm, setSearchTerm] = useState('');
+
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  interface Project {
-    id: number;
-    title: string;
-    category: string;
-    location: string;
-    year: string;
-    client: string;
-    description: string;
-    challenge: string;
-    solution: string;
-    result: string;
-    image: string;
-    gallery: string[];
+  // Available categories
+
+  const categories = [  // Available categories
+
+    'all',  const categories = [
+
+    'Residential Building',    'all',
+
+    'Commercial Building',    'Residential Building',
+
+    'Industrial Project',    'Commercial Building',
+
+    'Infrastructure',    'Industrial Project',
+
+    'Property Valuation',    'Infrastructure',
+
+    'Structural Design',    'Property Valuation',
+
+    'Other'    'Structural Design',
+
+  ];    'Other'
+
+  ];
+
+  useEffect(() => {
+
+    fetchProjects();  useEffect(() => {
+
+  }, [selectedCategory, searchTerm, showFeaturedOnly]);    fetchProjects();
+
+  }, [selectedCategory, searchTerm, showFeaturedOnly]);
+
+  const fetchProjects = async () => {
+
+    try {  const fetchProjects = async () => {
+
+      setLoading(true);    try {
+
+      setError(null);      setLoading(true);
+
+            setError(null);
+
+      const params: any = {      
+
+        limit: 50,      const params: any = {
+
+      };        limit: 50,
+
+            };
+
+      if (selectedCategory !== 'all') {      
+
+        params.category = selectedCategory;      if (selectedCategory !== 'all') {
+
+      }        params.category = selectedCategory;
+
+            }
+
+      if (searchTerm) {      
+
+        params.search = searchTerm;      if (searchTerm) {
+
+      }        params.search = searchTerm;
+
+            }
+
+      if (showFeaturedOnly) {      
+
+        params.featured = true;      if (showFeaturedOnly) {
+
+      }        params.featured = true;
+
+      }
+
+      const response = await publicApiClient.getProjects(params);
+
+            const response = await publicApiClient.getProjects(params);
+
+      if (response.success) {      
+
+        setProjects(response.data || []);      if (response.success) {
+
+      } else {        setProjects(response.data || []);
+
+        setError(response.message || 'Failed to fetch projects');      } else {
+
+      }        setError(response.message || 'Failed to fetch projects');
+
+    } catch (err) {      }
+
+      console.error('Error fetching projects:', err);    } catch (err) {
+
+      setError('Failed to load projects. Please try again later.');      console.error('Error fetching projects:', err);
+
+      setProjects([]);      setError('Failed to load projects. Please try again later.');
+
+    } finally {      setProjects([]);
+
+      setLoading(false);    } finally {
+
+    }      setLoading(false);
+
+  };    }
+
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+
+    e.preventDefault();  const handleSearch = (e: React.FormEvent) => {
+
+    fetchProjects();    e.preventDefault();
+
+  };    fetchProjects();
+
+  };
+
+  const formatDate = (dateString?: string) => {
+
+    if (!dateString) return 'N/A';  const formatDate = (dateString?: string) => {
+
+    return new Date(dateString).toLocaleDateString('en-US', {    if (!dateString) return 'N/A';
+
+      year: 'numeric',    return new Date(dateString).toLocaleDateString('en-US', {
+
+      month: 'long'      year: 'numeric',
+
+    });      month: 'long'
+
+  };    });
+
+  };
+
+  if (loading) {
+
+    return (  if (loading) {
+
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">    return (
+
+        <div className="container mx-auto px-4 py-16">      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+
+          <div className="flex items-center justify-center h-64">        <div className="container mx-auto px-4 py-16">
+
+            <div className="text-center">          <div className="flex items-center justify-center h-64">
+
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />            <div className="text-center">
+
+              <p className="text-gray-600">Loading projects...</p>              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+
+            </div>              <p className="text-gray-600">Loading projects...</p>
+
+          </div>            </div>
+
+        </div>          </div>
+
+      </div>        </div>
+
+    );      </div>
+
+  }    );
+
   }
 
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: 'Modern Office Complex',
-      category: 'Commercial',
-      location: 'Downtown Business District',
-      year: '2023',
-      client: 'TechCorp International',
-      description:
-        'A state-of-the-art office complex featuring sustainable design elements and modern amenities.',
-      challenge:
-        'The client needed a modern office space that would accommodate their growing team while reflecting their innovative company culture. The site had limited space and required careful planning to maximize usable area.',
-      solution:
-        'We designed a multi-story complex with flexible workspaces, collaborative areas, and cutting-edge technology integration. Sustainable features included solar panels, rainwater harvesting, and energy-efficient systems.',
-      result:
-        'The completed project provided 30% more usable space than conventional designs, reduced energy consumption by 40%, and created an inspiring work environment that has improved employee satisfaction and productivity.',
-      image:
-        'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 2,
-      title: 'Luxury Residential Tower',
-      category: 'Residential',
-      location: 'Waterfront District',
-      year: '2022',
-      client: 'Elite Properties',
-      description:
-        'High-end residential tower with premium finishes and panoramic city views.',
-      challenge:
-        'The client wanted to create a luxury residential tower that would stand out in the competitive real estate market while maximizing the value of a prime waterfront location.',
-      solution:
-        'We designed a 30-story tower with a distinctive architectural profile, featuring floor-to-ceiling windows, private balconies, and premium amenities including a rooftop pool, fitness center, and concierge services.',
-      result:
-        'The project sold out 80% of units before construction completion, commanding premium prices 15% above market average. The building has become an iconic addition to the city skyline.',
-      image:
-        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 3,
-      title: 'Shopping Mall Renovation',
-      category: 'Commercial',
-      location: 'Suburban Retail District',
-      year: '2022',
-      client: 'Metro Retail Group',
-      description:
-        'Complete renovation and modernization of an existing shopping mall.',
-      challenge:
-        'The client needed to revitalize an aging shopping mall that was losing tenants and customers to newer retail developments in the area.',
-      solution:
-        'We redesigned the mall with a modern aesthetic, improved circulation, enhanced natural lighting, and created new public spaces. The renovation included updated storefronts, a food court redesign, and integration of digital technology.',
-      result:
-        'Following renovation, the mall saw a 60% increase in foot traffic, attracted premium retail tenants, and achieved 95% occupancy within six months of reopening.',
-      image:
-        'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1567449303078-57ad995bd17a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1581417478175-a9ef18f210c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 4,
-      title: 'Sustainable Community Housing',
-      category: 'Residential',
-      location: 'Green Valley',
-      year: '2021',
-      client: 'EcoLiving Developments',
-      description:
-        'Eco-friendly residential community with energy-efficient homes and shared green spaces.',
-      challenge:
-        'The client wanted to create an affordable yet sustainable housing community that would minimize environmental impact while fostering a sense of community among residents.',
-      solution:
-        'We designed a master-planned community with energy-efficient homes, shared green spaces, community gardens, and renewable energy systems. The design incorporated passive solar principles, rainwater harvesting, and sustainable building materials.',
-      result:
-        'The community has reduced energy consumption by 50% compared to conventional developments, won multiple sustainability awards, and created a thriving neighborhood with strong community engagement.',
-      image:
-        'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1576941089067-2de3c901e126?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 5,
-      title: 'Medical Research Facility',
-      category: 'Institutional',
-      location: 'University District',
-      year: '2021',
-      client: 'National Health Institute',
-      description:
-        'State-of-the-art medical research facility with specialized laboratories and collaborative spaces.',
-      challenge:
-        'The client required a cutting-edge research facility that would accommodate specialized equipment, ensure biosafety protocols, and foster collaboration among researchers.',
-      solution:
-        'We designed a purpose-built facility with modular laboratories, controlled environments, and integrated technology systems. The design included collaborative spaces, conference facilities, and flexible research areas that could adapt to changing requirements.',
-      result:
-        'The facility has enabled breakthrough research in multiple medical fields, attracted top scientific talent, and secured additional research funding due to its advanced capabilities.',
-      image:
-        'https://images.unsplash.com/photo-1504439468489-c8920d796a29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1581093458791-9d09c85a31ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1581093804721-9722fb3b1610?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 6,
-      title: 'Industrial Manufacturing Plant',
-      category: 'Industrial',
-      location: 'Industrial Park',
-      year: '2020',
-      client: 'Global Manufacturing Inc.',
-      description:
-        'Modern manufacturing facility designed for efficiency, safety, and future expansion.',
-      challenge:
-        'The client needed a manufacturing facility that would optimize production workflows, ensure worker safety, and allow for future expansion as the business grew.',
-      solution:
-        'We designed a facility with efficient production lines, automated systems, and careful consideration of material flow. The design incorporated safety features, ergonomic workstations, and flexible spaces that could be reconfigured as needed.',
-      result:
-        'The new facility increased production capacity by 35%, reduced workplace incidents by 60%, and provided a platform for business growth that has already accommodated two major expansions.',
-      image:
-        'https://images.unsplash.com/photo-1581092921461-39b9d08a9b21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 7,
-      title: 'Hyatt Place Kathmandu - Professional Property Valuation',
-      category: 'Valuation',
-      location: 'Red Cross Marg, Soltimod, Kathmandu',
-      year: '2025',
-      client: 'Nepal Investment Mega Bank Limited',
-      description:
-        'Comprehensive valuation assessment of Hyatt Place Kathmandu, a prestigious five-star hotel and apartment complex, providing institutional-grade property evaluation for banking purposes.',
-      challenge:
-        'The client required a specialized valuation of a high-end hospitality and residential complex in Kathmandu\'s prime location. The property\'s dual-use nature (hotel and apartments) demanded expertise in both hospitality sector valuations and residential market analysis, with consideration of international hotel brand standards and local market conditions.',
-      solution:
-        'Our certified valuation team conducted extensive on-site assessment including detailed evaluation of hotel operational areas, guest facilities, apartment units, revenue generation potential, and comprehensive market analysis. We employed multiple valuation approaches including income capitalization, sales comparison, and replacement cost methods to ensure accuracy.',
-      result:
-        'Successfully delivered a comprehensive valuation report that enabled Nepal Investment Mega Bank to make informed lending decisions. The report met international banking standards and provided detailed market insights, supporting the bank\'s risk assessment for this significant hospitality sector investment.',
-      image:
-        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 8,
-      title: 'Good Karma Residences - Multi-Phase Construction Supervision',
-      category: 'Supervision',
-      location: 'Chakrapath, Maharajgunj, behind Qatar Visa Center (QVC)',
-      year: '2025',
-      client: 'Nepal Investment Mega Bank Limited / Good Karma Group of Companies',
-      description:
-        'Ongoing comprehensive construction supervision and running bill verification for Good Karma Residences, a premium residential development project requiring systematic monitoring through multiple construction phases.',
-      challenge:
-        'This high-value residential project required continuous monitoring through multiple construction phases with rigorous quality control standards. The bank needed assurance that each payment release corresponded to actual progress meeting approved specifications, while the developer required efficient verification processes to maintain construction timeline.',
-      solution:
-        'Established systematic verification protocol covering multiple running bill phases (10th, 14th, and 17th bills completed). Our team conducted detailed on-site inspections, quality assessments, material usage verification, safety compliance checks, and progress evaluation against approved architectural and structural plans. Each phase included photographic documentation and detailed reporting.',
-      result:
-        'Successfully completed multiple verification phases ensuring construction quality, timeline adherence, and investment protection. Our systematic approach enabled smooth payment releases while maintaining strict quality standards, resulting in continued confidence from the lending institution and efficient project progression for the developer.',
-      image:
-        'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1581092335878-40cb95fb1145?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 9,
-      title: 'Hotel Forest Inn - Five-Star Hotel Construction Verification',
-      category: 'Supervision',
-      location: 'Budhanilkantha Height, Kathmandu',
-      year: '2025',
-      client: 'Nabil Bank Limited / Hotel Forest Inn Pvt Ltd',
-      description:
-        'Specialized running bill verification for Hotel Forest Inn, a luxury five-star hotel under construction, focusing on civil and interior work compliance with international hospitality standards.',
-      challenge:
-        'This prestigious five-star hotel project required expertise in luxury hospitality construction standards, including specialized knowledge of hotel operational requirements, guest experience infrastructure, and international safety protocols. The verification needed to ensure that all civil and interior work met five-star hotel specifications while protecting the bank\'s significant investment.',
-      solution:
-        'Conducted comprehensive 17th running bill verification covering structural integrity, luxury interior finishing standards, MEP (Mechanical, Electrical, Plumbing) systems installation, fire safety compliance, guest room specifications, public area standards, and hospitality-specific infrastructure. Our team evaluated work quality against international five-star hotel benchmarks and local building codes.',
-      result:
-        'Successfully verified construction progress meeting five-star hotel standards, ensuring Nabil Bank\'s investment protection while maintaining project quality and timeline. The detailed verification enabled continued financing confidence and supported the developer in achieving luxury hospitality specifications throughout the construction process.',
-      image:
-        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1578774204375-826dc5d996ed?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 10,
-      title: 'Federal Parliament Secretariat - Post-Delivery Technical Inspection',
-      category: 'Inspection',
-      location: 'Singha Durbar, Kathmandu, Nepal',
-      year: '2025',
-      client: 'Federal Parliament Secretariat (संघीय संसद सचिवालय)',
-      description:
-        'Prestigious post-delivery technical inspection assignment for furniture and furnishings supplied to Nepal\'s Federal Parliament Secretariat, Department of Internal Service and Plan Management Administration.',
-      challenge:
-        'This high-profile government project required meticulous attention to detail and strict adherence to government procurement standards. The inspection needed to verify that all delivered furniture and furnishings met the exacting standards expected for Nepal\'s Federal Parliament, while ensuring compliance with government specifications and quality requirements for this national institution.',
-      solution:
-        'Conducted comprehensive post-delivery technical inspection covering detailed quality verification of all furniture items, installation standards assessment, finish quality evaluation, functional testing of all components, compliance verification with government procurement specifications, and preparation of detailed documentation including defect identification and corrective action recommendations.',
-      result:
-        'Successfully completed thorough technical inspection and delivered comprehensive report ensuring all furniture and furnishings meet Federal Parliament standards. This prestigious assignment demonstrates our trusted position with Nepal\'s most important government institutions and our capability in handling high-profile national projects requiring the highest levels of professionalism and quality assurance.',
-      image:
-        'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 11,
-      title: 'Cityscape Housing Lalitpur - Apartment Valuation Project',
-      category: 'Valuation',
-      location: 'Hattiwan, Lalitpur',
-      year: '2025',
-      client: 'Nepal Investment Mega Bank Ltd.',
-      description:
-        'Comprehensive apartment valuation assessment for Cityscape Housing development in Lalitpur, providing detailed property evaluation for institutional lending purposes.',
-      challenge:
-        'The client required accurate market valuation of residential apartments in a developing area of Lalitpur. The challenge involved assessing current market conditions, construction quality, location advantages, and future development potential while ensuring the valuation met banking standards for loan processing and risk assessment.',
-      solution:
-        'Our experienced valuation team conducted thorough on-site assessment including structural integrity evaluation, construction quality analysis, location and accessibility factors review, comparative market analysis with similar properties in Lalitpur, and assessment of future development potential. We employed multiple valuation methodologies to ensure accuracy and reliability.',
-      result:
-        'Delivered comprehensive valuation report enabling Nepal Investment Mega Bank to make informed lending decisions. The report provided detailed market insights, risk assessment, and accurate property values that supported the bank\'s loan processing while ensuring fair value determination for all stakeholders in the transaction.',
-      image:
-        'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-    {
-      id: 12,
-      title: 'Everest Bank - Hotel & Land Development Valuation',
-      category: 'Valuation',
-      location: 'A.P. Durbar Banquet, Janakpur',
-      year: '2025',
-      client: 'Everest Bank Limited',
-      description:
-        'Professional valuation assessment of under-construction hotel building with associated land for Everest Bank Limited, providing comprehensive property evaluation for development financing.',
-      challenge:
-        'This project involved valuing a complex development including both under-construction hotel infrastructure and valuable land assets. The challenge required expertise in hospitality sector valuations, construction-in-progress assessment, land valuation in developing areas, and consideration of completion risks and market potential for hotel operations.',
-      solution:
-        'Conducted detailed valuation covering land assessment, construction progress evaluation, hotel development potential analysis, market comparison for similar hospitality projects, and risk assessment for completion and operational viability. Our approach included both current value assessment and projected completion value analysis.',
-      result:
-        'Provided Everest Bank with comprehensive valuation report supporting their development financing decisions. The detailed assessment enabled informed lending decisions while properly evaluating both current asset value and future potential, ensuring appropriate risk management for this significant hospitality sector investment.',
-      image:
-        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1578774204375-826dc5d996ed?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-      ],
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: 'John Smith',
-      position: 'CEO',
-      company: 'TechCorp International',
-      testimonial:
-        'Forever Shine Engineering delivered our office complex project on time and within budget. Their attention to detail and professional approach exceeded our expectations. The innovative design has transformed our work environment and impressed both employees and clients.',
-      image:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    },
-    {
-      name: 'Sarah Johnson',
-      position: 'Development Director',
-      company: 'Elite Properties',
-      testimonial:
-        "Working with Forever Shine on our luxury residential tower was a seamless experience. Their team's expertise in municipality drawings saved us valuable time in the approval process, and their innovative design approach resulted in a building that stands out in the market.",
-      image:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    },
-    {
-      name: 'Michael Chen',
-      position: 'Operations Manager',
-      company: 'Global Manufacturing Inc.',
-      testimonial:
-        'The industrial facility designed by Forever Shine has transformed our manufacturing operations. Their understanding of our workflow requirements and attention to safety details has created a more efficient and productive environment for our team.',
-      image:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    },
-  ];
-
-  const categories = [
-    'all',
-    'Commercial',
-    'Residential',
-    'Industrial',
-    'Institutional',
-    'Valuation',
-    'Supervision',
-    'Inspection',
-  ];
-
-  const filteredProjects =
-    selectedCategory === 'all'
-      ? projects
-      : projects.filter((project) => project.category === selectedCategory);
-
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative py-32 bg-blue-700">
-        <div className="absolute inset-0 z-0 opacity-20">
-          <Image
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-            alt="Construction Projects"
-            className="w-full h-full object-cover"
-            width={2000}
-            height={1200}
-          />
-        </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Our Projects
-            </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              Explore our portfolio of successful projects that showcase our
-              expertise and commitment to excellence.
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">  return (
+
+      {/* Hero Section */}    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+
+      <section className="py-20 bg-gradient-to-r from-blue-900 to-blue-700 text-white">      {/* Hero Section */}
+
+        <div className="container mx-auto px-4">      <section className="py-20 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+
+          <div className="text-center max-w-3xl mx-auto">        <div className="container mx-auto px-4">
+
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">          <div className="text-center max-w-3xl mx-auto">
+
+              Our <span className="text-yellow-400">Projects</span>            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+
+            </h1>              Our <span className="text-yellow-400">Projects</span>
+
+            <p className="text-xl text-blue-100 mb-8">            </h1>
+
+              Explore our portfolio of successful engineering projects that demonstrate             <p className="text-xl text-blue-100 mb-8">
+
+              our commitment to excellence, innovation, and sustainable construction practices.              Explore our portfolio of successful engineering projects that demonstrate 
+
+            </p>              our commitment to excellence, innovation, and sustainable construction practices.
+
+          </div>            </p>
+
+        </div>          </div>
+
+      </section>        </div>
+
       </section>
 
-      {/* Projects Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="Project Portfolio"
-            subtitle="Browse our diverse range of projects across various sectors"
-            center={true}
-          />
+      {/* Search and Filter Section */}
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {categories.map((category, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-full transition-all duration-300 ${
-                  selectedCategory === category
-                    ? 'bg-blue-700 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {category === 'all' ? 'All Projects' : category}
-              </button>
-            ))}
-          </div>
+      <section className="py-12 bg-white border-b">      {/* Search and Filter Section */}
 
-          {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                title={project.title}
-                category={project.category}
-                image={project.image}
-                description={project.description}
-                onClick={() => setSelectedProject(project)}
-              />
-            ))}
-          </div>
-        </div>
+        <div className="container mx-auto px-4">      <section className="py-12 bg-white border-b">
+
+          <div className="max-w-4xl mx-auto">        <div className="container mx-auto px-4">
+
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">          <div className="max-w-4xl mx-auto">
+
+              {/* Search */}            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+
+              <form onSubmit={handleSearch} className="flex-1 max-w-md">              {/* Search */}
+
+                <div className="relative">              <form onSubmit={handleSearch} className="flex-1 max-w-md">
+
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />                <div className="relative">
+
+                  <input                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+                    type="text"                  <input
+
+                    placeholder="Search projects..."                    type="text"
+
+                    value={searchTerm}                    placeholder="Search projects..."
+
+                    onChange={(e) => setSearchTerm(e.target.value)}                    value={searchTerm}
+
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"                    onChange={(e) => setSearchTerm(e.target.value)}
+
+                  />                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+
+                </div>                  />
+
+              </form>                </div>
+
+              </form>
+
+              {/* Category Filter */}
+
+              <div className="flex flex-wrap gap-2">              {/* Category Filter */}
+
+                {categories.map((category) => (              <div className="flex flex-wrap gap-2">
+
+                  <button                {categories.map((category) => (
+
+                    key={category}                  <button
+
+                    onClick={() => setSelectedCategory(category)}                    key={category}
+
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${                    onClick={() => setSelectedCategory(category)}
+
+                      selectedCategory === category                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+
+                        ? 'bg-blue-600 text-white'                      selectedCategory === category
+
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'                        ? 'bg-blue-600 text-white'
+
+                    }`}                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+
+                  >                    }`}
+
+                    {category === 'all' ? 'All Projects' : category}                  >
+
+                  </button>                    {category === 'all' ? 'All Projects' : category}
+
+                ))}                  </button>
+
+              </div>                ))}
+
+              </div>
+
+              {/* Featured Filter */}
+
+              <button              {/* Featured Filter */}
+
+                onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}              <button
+
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${                onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
+
+                  showFeaturedOnly                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+
+                    ? 'bg-yellow-100 border-yellow-300 text-yellow-700'                  showFeaturedOnly
+
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'                    ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
+
+                }`}                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+
+              >                }`}
+
+                <Star className={`w-4 h-4 ${showFeaturedOnly ? 'fill-current' : ''}`} />              >
+
+                Featured Only                <Star className={`w-4 h-4 ${showFeaturedOnly ? 'fill-current' : ''}`} />
+
+              </button>                Featured Only
+
+            </div>              </button>
+
+          </div>            </div>
+
+        </div>          </div>
+
+      </section>        </div>
+
       </section>
 
-      {/* Project Modal */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="relative">
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-md z-10"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-gray-700"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+      {/* Results Section */}
 
-              <div className="h-80 overflow-hidden">
-                <Image
-                  src={selectedProject.image}
-                  alt={selectedProject.title}
-                  className="w-full h-full object-cover"
-                  width={1200}
-                  height={800}
-                />
-              </div>
-            </div>
+      <section className="py-12">      {/* Results Section */}
 
-            <div className="p-6 md:p-8">
-              <span className="text-blue-700 font-medium">
-                {selectedProject.category}
-              </span>
-              <h2 className="text-3xl font-bold mt-1 mb-4 text-gray-900">
-                {selectedProject.title}
-              </h2>
+        <div className="container mx-auto px-4">      <section className="py-12">
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500">
-                    Location
-                  </h4>
-                  <p className="text-gray-900">{selectedProject.location}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500">Year</h4>
-                  <p className="text-gray-900">{selectedProject.year}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500">
-                    Client
-                  </h4>
-                  <p className="text-gray-900">{selectedProject.client}</p>
-                </div>
-              </div>
+          <div className="text-center mb-8">        <div className="container mx-auto px-4">
 
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-2 text-gray-900">
-                  Project Overview
-                </h3>
-                <p className="text-gray-600">{selectedProject.description}</p>
-              </div>
+            <p className="text-gray-600">          <div className="text-center mb-8">
 
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-2 text-gray-900">
-                  Challenge
-                </h3>
-                <p className="text-gray-600">{selectedProject.challenge}</p>
-              </div>
+              Showing {projects.length} project{projects.length !== 1 ? 's' : ''}            <p className="text-gray-600">
 
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-2 text-gray-900">
-                  Solution
-                </h3>
-                <p className="text-gray-600">{selectedProject.solution}</p>
-              </div>
+              {selectedCategory !== 'all' && ` in ${selectedCategory}`}              Showing {projects.length} project{projects.length !== 1 ? 's' : ''}
 
-              <div className="mb-8">
-                <h3 className="text-xl font-bold mb-2 text-gray-900">Result</h3>
-                <p className="text-gray-600">{selectedProject.result}</p>
-              </div>
+              {showFeaturedOnly && ' (Featured)'}              {selectedCategory !== 'all' && ` in ${selectedCategory}`}
 
-              <h3 className="text-xl font-bold mb-4 text-gray-900">
-                Project Gallery
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {selectedProject.gallery.map((image, index) => (
-                  <Image
-                    key={index}
-                    src={image}
-                    alt={`${selectedProject.title} - Image ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                    width={1200}
-                    height={800}
-                  />
-                ))}
-              </div>
-            </div>
+            </p>              {showFeaturedOnly && ' (Featured)'}
+
+          </div>            </p>
+
           </div>
-        </div>
-      )}
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="Client Testimonials"
-            subtitle="What our clients say about our projects"
-            center={true}
-          />
+          {error ? (
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={index}
-                name={testimonial.name}
-                position={testimonial.position}
-                company={testimonial.company}
-                testimonial={testimonial.testimonial}
-                image={testimonial.image}
-              />
-            ))}
-          </div>
-        </div>
+            <div className="text-center py-12">          {error ? (
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">            <div className="text-center py-12">
+
+                <p className="text-red-600 mb-4">{error}</p>              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+
+                <Button                 <p className="text-red-600 mb-4">{error}</p>
+
+                  onClick={fetchProjects}                <Button 
+
+                  className="bg-red-600 hover:bg-red-700"                  onClick={fetchProjects}
+
+                >                  className="bg-red-600 hover:bg-red-700"
+
+                  Try Again                >
+
+                </Button>                  Try Again
+
+              </div>                </Button>
+
+            </div>              </div>
+
+          ) : projects.length === 0 ? (            </div>
+
+            <div className="text-center py-12">          ) : projects.length === 0 ? (
+
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-md mx-auto">            <div className="text-center py-12">
+
+                <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />              <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-md mx-auto">
+
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Projects Found</h3>                <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+
+                <p className="text-gray-600 mb-4">                <h3 className="text-lg font-medium text-gray-900 mb-2">No Projects Found</h3>
+
+                  {searchTerm || selectedCategory !== 'all' || showFeaturedOnly                <p className="text-gray-600 mb-4">
+
+                    ? 'Try adjusting your search criteria or filters.'                  {searchTerm || selectedCategory !== 'all' || showFeaturedOnly
+
+                    : 'No projects are available at the moment.'}                    ? 'Try adjusting your search criteria or filters.'
+
+                </p>                    : 'No projects are available at the moment.'}
+
+                {(searchTerm || selectedCategory !== 'all' || showFeaturedOnly) && (                </p>
+
+                  <Button                {(searchTerm || selectedCategory !== 'all' || showFeaturedOnly) && (
+
+                    onClick={() => {                  <Button
+
+                      setSearchTerm('');                    onClick={() => {
+
+                      setSelectedCategory('all');                      setSearchTerm('');
+
+                      setShowFeaturedOnly(false);                      setSelectedCategory('all');
+
+                    }}                      setShowFeaturedOnly(false);
+
+                  >                    }}
+
+                    Clear Filters                  >
+
+                  </Button>                    Clear Filters
+
+                )}                  </Button>
+
+              </div>                )}
+
+            </div>              </div>
+
+          ) : (            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">          ) : (
+
+              {projects.map((project) => (            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <div              {projects.map((project) => (
+
+                  key={project.id}                <div
+
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"                  key={project.id}
+
+                  onClick={() => setSelectedProject(project)}                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+
+                >                  onClick={() => setSelectedProject(project)}
+
+                  <div className="relative h-48 bg-gray-200">                >
+
+                    {project.imageUrl ? (                  <div className="relative h-48 bg-gray-200">
+
+                      <img                    {project.imageUrl ? (
+
+                        src={project.imageUrl}                      <img
+
+                        alt={project.title}                        src={project.imageUrl}
+
+                        className="w-full h-full object-cover"                        alt={project.title}
+
+                        onError={(e) => {                        className="w-full h-full object-cover"
+
+                          // Fallback to placeholder if image fails to load                        onError={(e) => {
+
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';                          // Fallback to placeholder if image fails to load
+
+                        }}                          e.currentTarget.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+
+                      />                        }}
+
+                    ) : (                      />
+
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">                    ) : (
+
+                        <Building className="w-16 h-16 text-blue-400" />                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+
+                      </div>                        <Building className="w-16 h-16 text-blue-400" />
+
+                    )}                      </div>
+
+                    {project.featured && (                    )}
+
+                      <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">                    {project.featured && (
+
+                        <Star className="w-3 h-3 fill-current" />                      <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+
+                        Featured                        <Star className="w-3 h-3 fill-current" />
+
+                      </div>                        Featured
+
+                    )}                      </div>
+
+                  </div>                    )}
+
+                                    </div>
+
+                  <div className="p-6">                  
+
+                    <div className="flex items-center gap-2 mb-3">                  <div className="p-6">
+
+                      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">                    <div className="flex items-center gap-2 mb-3">
+
+                        {project.category}                      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+
+                      </span>                        {project.category}
+
+                    </div>                      </span>
+
+                                        </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">                    
+
+                      {project.title}                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+
+                    </h3>                      {project.title}
+
+                                        </h3>
+
+                    <p className="text-gray-600 mb-4 line-clamp-3">                    
+
+                      {project.description}                    <p className="text-gray-600 mb-4 line-clamp-3">
+
+                    </p>                      {project.description}
+
+                                        </p>
+
+                    <div className="space-y-2 text-sm text-gray-500">                    
+
+                      {project.clientName && (                    <div className="space-y-2 text-sm text-gray-500">
+
+                        <div className="flex items-center gap-2">                      {project.clientName && (
+
+                          <User className="w-4 h-4" />                        <div className="flex items-center gap-2">
+
+                          <span>{project.clientName}</span>                          <User className="w-4 h-4" />
+
+                        </div>                          <span>{project.clientName}</span>
+
+                      )}                        </div>
+
+                      {project.completionDate && (                      )}
+
+                        <div className="flex items-center gap-2">                      {project.completionDate && (
+
+                          <Calendar className="w-4 h-4" />                        <div className="flex items-center gap-2">
+
+                          <span>Completed {formatDate(project.completionDate)}</span>                          <Calendar className="w-4 h-4" />
+
+                        </div>                          <span>Completed {formatDate(project.completionDate)}</span>
+
+                      )}                        </div>
+
+                    </div>                      )}
+
+                  </div>                    </div>
+
+                </div>                  </div>
+
+              ))}                </div>
+
+            </div>              ))}
+
+          )}            </div>
+
+        </div>          )}
+
+      </section>        </div>
+
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-blue-700 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Start Your Project?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Contact us today to discuss how we can bring your vision to life
-            with our expertise in engineering and construction.
-          </p>
-          <Button href="/contact" variant="secondary" className="mx-auto">
-            Get in Touch
-          </Button>
-        </div>
-      </section>
-    </div>
-  );
+      {/* Project Detail Modal */}
+
+      {selectedProject && (      {/* Project Detail Modal */}
+
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">      {selectedProject && (
+
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+
+            <div className="relative">          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+
+              {selectedProject.imageUrl ? (            <div className="relative">
+
+                <img              {selectedProject.imageUrl ? (
+
+                  src={selectedProject.imageUrl}                <img
+
+                  alt={selectedProject.title}                  src={selectedProject.imageUrl}
+
+                  className="w-full h-64 object-cover"                  alt={selectedProject.title}
+
+                  onError={(e) => {                  className="w-full h-64 object-cover"
+
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';                  onError={(e) => {
+
+                  }}                    e.currentTarget.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+
+                />                  }}
+
+              ) : (                />
+
+                <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">              ) : (
+
+                  <Building className="w-24 h-24 text-blue-400" />                <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+
+                </div>                  <Building className="w-24 h-24 text-blue-400" />
+
+              )}                </div>
+
+              <button              )}
+
+                onClick={() => setSelectedProject(null)}              <button
+
+                className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 transition-colors"                onClick={() => setSelectedProject(null)}
+
+              >                className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 transition-colors"
+
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">              >
+
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                </svg>                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+
+              </button>                </svg>
+
+            </div>              </button>
+
+                        </div>
+
+            <div className="p-8">            
+
+              <div className="flex items-center gap-2 mb-4">            <div className="p-8">
+
+                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">              <div className="flex items-center gap-2 mb-4">
+
+                  {selectedProject.category}                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+
+                </span>                  {selectedProject.category}
+
+                {selectedProject.featured && (                </span>
+
+                  <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">                {selectedProject.featured && (
+
+                    <Star className="w-3 h-3 fill-current" />                  <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+
+                    Featured                    <Star className="w-3 h-3 fill-current" />
+
+                  </span>                    Featured
+
+                )}                  </span>
+
+              </div>                )}
+
+                            </div>
+
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">              
+
+                {selectedProject.title}              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+
+              </h2>                {selectedProject.title}
+
+                            </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">              
+
+                {selectedProject.clientName && (              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+                  <div className="flex items-center gap-3">                {selectedProject.clientName && (
+
+                    <User className="w-5 h-5 text-gray-400" />                  <div className="flex items-center gap-3">
+
+                    <div>                    <User className="w-5 h-5 text-gray-400" />
+
+                      <p className="text-sm text-gray-500">Client</p>                    <div>
+
+                      <p className="font-medium">{selectedProject.clientName}</p>                      <p className="text-sm text-gray-500">Client</p>
+
+                    </div>                      <p className="font-medium">{selectedProject.clientName}</p>
+
+                  </div>                    </div>
+
+                )}                  </div>
+
+                {selectedProject.completionDate && (                )}
+
+                  <div className="flex items-center gap-3">                {selectedProject.completionDate && (
+
+                    <Calendar className="w-5 h-5 text-gray-400" />                  <div className="flex items-center gap-3">
+
+                    <div>                    <Calendar className="w-5 h-5 text-gray-400" />
+
+                      <p className="text-sm text-gray-500">Completion Date</p>                    <div>
+
+                      <p className="font-medium">{formatDate(selectedProject.completionDate)}</p>                      <p className="text-sm text-gray-500">Completion Date</p>
+
+                    </div>                      <p className="font-medium">{formatDate(selectedProject.completionDate)}</p>
+
+                  </div>                    </div>
+
+                )}                  </div>
+
+              </div>                )}
+
+                            </div>
+
+              <div className="prose max-w-none">              
+
+                <h3 className="text-xl font-semibold mb-3">Project Description</h3>              <div className="prose max-w-none">
+
+                <p className="text-gray-600 leading-relaxed mb-6">                <h3 className="text-xl font-semibold mb-3">Project Description</h3>
+
+                  {selectedProject.description}                <p className="text-gray-600 leading-relaxed mb-6">
+
+                </p>                  {selectedProject.description}
+
+              </div>                </p>
+
+                            </div>
+
+              <div className="flex justify-end">              
+
+                <Button              <div className="flex justify-end">
+
+                  onClick={() => setSelectedProject(null)}                <Button
+
+                  variant="outline"                  onClick={() => setSelectedProject(null)}
+
+                >                  variant="outline"
+
+                  Close                >
+
+                </Button>                  Close
+
+              </div>                </Button>
+
+            </div>              </div>
+
+          </div>            </div>
+
+        </div>          </div>
+
+      )}        </div>
+
+    </div>      )}
+
+  );    </div>
+
+};  );
+
 };
 
+export default Projects;
 export default Projects;

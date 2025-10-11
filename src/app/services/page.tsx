@@ -1,17 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Ruler, Building2, Calculator, MapPin, Home, HardHat, CheckCircle } from 'lucide-react';
+import { Ruler, Building2, Calculator, MapPin, Home, HardHat, CheckCircle, Loader2 } from 'lucide-react';
 import SectionTitle from '@/components/SectionTitle';
 import Button from '@/components/Button';
 
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  features: string[];
+  icon?: string;
+  status: 'ACTIVE' | 'INACTIVE';
+}
+
+// Icon mapping for backward compatibility with existing hardcoded services
+const getIconComponent = (iconName: string | undefined) => {
+  const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+    ruler: Ruler,
+    building: Building2,
+    calculator: Calculator,
+    map: MapPin,
+    home: Home,
+    hardhat: HardHat,
+  };
+  
+  const IconComponent = iconName ? iconMap[iconName.toLowerCase()] || Building2 : Building2;
+  return <IconComponent className="w-12 h-12" />;
+};
+
 export default function Services() {
-  const services = [
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fallback services data in case backend fails
+  const fallbackServices = [
     {
+      id: 'fallback-1',
       title: 'Municipality Drawing & Design',
       description: 'Professional architectural drawings and designs that comply with local municipality regulations and standards.',
-      icon: <Ruler className="w-12 h-12" />,
+      icon: 'ruler',
       features: [
         'Building permit drawings',
         'Construction documentation',
@@ -20,26 +50,27 @@ export default function Services() {
         'Structural designs',
         'MEP drawings'
       ],
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     },
     {
+      id: 'fallback-2',
       title: '3D Interior Design',
       description: 'Stunning 3D visualizations of interior spaces to help you envision your dream home or office before construction.',
-      icon: <Building2 className="w-12 h-12" />,
+      icon: 'building',
       features: [
-        'Photorealistic 3D renderings',
         'Space planning',
         'Material selection',
         'Furniture layout',
         'Lighting design',
         'Color schemes'
       ],
-      image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     },
     {
+      id: 'fallback-3',
       title: 'Estimation & Costing',
       description: 'Accurate cost estimations for construction projects to help you plan your budget effectively.',
-      icon: <Calculator className="w-12 h-12" />,
+      icon: 'calculator',
       features: [
         'Detailed cost breakdowns',
         'Material quantity takeoffs',
@@ -48,12 +79,13 @@ export default function Services() {
         'Budget planning',
         'Value engineering'
       ],
-      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     },
     {
+      id: 'fallback-4',
       title: 'Civil Surveying',
       description: 'Comprehensive land surveying services to determine property boundaries and topographic features.',
-      icon: <MapPin className="w-12 h-12" />,
+      icon: 'map',
       features: [
         'Boundary surveys',
         'Topographic surveys',
@@ -62,12 +94,13 @@ export default function Services() {
         'GPS surveying',
         'As-built surveys'
       ],
-      image: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     },
     {
+      id: 'fallback-5',
       title: 'Property Valuation',
       description: 'Professional property valuation services for banking institutions, including residential, commercial, and hospitality sector assessments.',
-      icon: <Home className="w-12 h-12" />,
+      icon: 'home',
       features: [
         'Bank-grade property valuations',
         'Luxury hotel and apartment assessments',
@@ -76,12 +109,13 @@ export default function Services() {
         'Investment grade property analysis',
         'Comprehensive valuation reports for institutional lending'
       ],
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     },
     {
+      id: 'fallback-6',
       title: 'Site Supervision & Running Bill Verification',
       description: 'Comprehensive construction monitoring, quality control, and running bill verification services for banking institutions.',
-      icon: <HardHat className="w-12 h-12" />,
+      icon: 'hardhat',
       features: [
         'Running bill verification for institutional lenders',
         'Construction progress monitoring',
@@ -90,9 +124,42 @@ export default function Services() {
         'Safety protocol adherence monitoring',
         'Post-delivery technical inspections'
       ],
-      image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=80'
+      status: 'ACTIVE' as const
     }
   ];
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from backend API
+      const response = await fetch('http://localhost:5000/api/services?status=ACTIVE');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && data.data.length > 0) {
+          setServices(data.data);
+          return;
+        }
+      }
+      
+      // Fallback to hardcoded services if backend fails or returns no data
+      console.warn('Backend API unavailable, using fallback services');
+      setServices(fallbackServices);
+      
+    } catch (error) {
+      console.error('Failed to fetch services from backend:', error);
+      setError('Failed to load services');
+      setServices(fallbackServices);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -127,25 +194,44 @@ export default function Services() {
             center={true}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-700 mb-6">
-                  {service.icon}
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">{service.title}</h3>
-                <p className="text-gray-600 mb-6">{service.description}</p>
-                <div className="space-y-3">
-                  {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start">
-                      <CheckCircle className="text-blue-700 h-5 w-5 mt-1 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-600">Loading services...</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-600 mb-4">{error}</p>
+              <button 
+                onClick={fetchServices}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+              {services.map((service) => (
+                <div key={service.id} className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-700 mb-6">
+                    {getIconComponent(service.icon)}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">{service.title}</h3>
+                  <p className="text-gray-600 mb-6">{service.description}</p>
+                  <div className="space-y-3">
+                    {service.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start">
+                        <CheckCircle className="text-blue-700 h-5 w-5 mt-1 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
