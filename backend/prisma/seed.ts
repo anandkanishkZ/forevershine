@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -177,9 +178,22 @@ async function main() {
 
   try {
     // Clear existing data
+    await prisma.blogPost.deleteMany();
     await prisma.service.deleteMany();
     await prisma.project.deleteMany();
+    await prisma.user.deleteMany();
     console.log('✅ Cleared existing data');
+
+    // Create default admin user
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const defaultUser = await prisma.user.create({
+      data: {
+        email: 'info@forevershine.com.np',
+        password: hashedPassword,
+        role: 'SUPER_ADMIN'
+      }
+    });
+    console.log(`✅ Created admin user: ${defaultUser.email}`);
 
     // Create new services
     for (const service of sampleServices) {
@@ -207,7 +221,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error('❌ Seeding failed:', e);
-    process.exit(1);
+    throw e;
   })
   .finally(async () => {
     await prisma.$disconnect();
