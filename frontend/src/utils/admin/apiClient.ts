@@ -33,9 +33,13 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
+
+    // Only set Content-Type for non-FormData requests
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (this.token) {
       headers.Authorization = `Bearer ${this.token}`;
@@ -241,6 +245,51 @@ class ApiClient {
   // Testimonials (placeholder)
   async getTestimonials() {
     return this.request<any[]>('/testimonials');
+  }
+
+  // Media Management
+  async getMediaFiles(params?: { 
+    category?: string; 
+    type?: 'image' | 'document'; 
+    page?: number; 
+    limit?: number; 
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.category) searchParams.append('category', params.category);
+    if (params?.type) searchParams.append('type', params.type);
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    
+    const query = searchParams.toString();
+    return this.request<any[]>(`/media${query ? `?${query}` : ''}`);
+  }
+
+  async uploadMedia(files: FileList, category: string = 'general') {
+    const formData = new FormData();
+    
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    formData.append('category', category);
+
+    return this.request<any[]>('/media/upload', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Don't set Content-Type, let browser set it with boundary for FormData
+        ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
+      },
+    });
+  }
+
+  async deleteMedia(category: string, filename: string) {
+    return this.request<any>(`/media/${category}/${filename}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMediaCategories() {
+    return this.request<string[]>('/media/categories');
   }
 }
 

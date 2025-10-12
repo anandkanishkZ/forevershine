@@ -38,22 +38,45 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [servicesRes, projectsRes, contactRes] = await Promise.all([
+        const [servicesRes, projectsRes, contactRes, teamRes, testimonialsRes] = await Promise.all([
           apiClient.getServices(),
           apiClient.getProjects(),
-          fetch('/api/contact').then(res => res.json())
+          apiClient.getContactSubmissions(),
+          apiClient.getTeamMembers(),
+          apiClient.getTestimonials()
         ]);
+
+        console.log('Dashboard API responses:', {
+          services: servicesRes,
+          projects: projectsRes,
+          contacts: contactRes,
+          team: teamRes,
+          testimonials: testimonialsRes
+        });
+
+        // Count new/unread contact messages
+        const contacts = contactRes.data || [];
+        const newMessages = contacts.filter(contact => contact.status === 'UNREAD').length;
 
         setStats({
           services: servicesRes.data?.length || 0,
           projects: projectsRes.data?.length || 0,
-          teamMembers: 4, // Placeholder
-          testimonials: 1, // Placeholder
-          contactMessages: contactRes.stats?.total || 0,
-          newMessages: contactRes.stats?.new || 0
+          teamMembers: teamRes.data?.length || 0,
+          testimonials: testimonialsRes.data?.length || 0,
+          contactMessages: contacts.length,
+          newMessages: newMessages
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
+        // Set default values to prevent UI from breaking
+        setStats({
+          services: 0,
+          projects: 0,
+          teamMembers: 0,
+          testimonials: 0,
+          contactMessages: 0,
+          newMessages: 0
+        });
       } finally {
         setLoading(false);
       }

@@ -17,6 +17,7 @@ import testimonialRoutes from './routes/testimonials';
 import settingsRoutes from './routes/settings';
 import contactRoutes from './routes/contact';
 import uploadRoutes from './routes/upload';
+import mediaRoutes from './routes/media';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -26,7 +27,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // CORS configuration
 app.use(cors({
@@ -53,6 +56,7 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/media', mediaRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req: Request, res: Response) => {

@@ -155,8 +155,7 @@ const AdminProjectsView: React.FC = () => {
           </span>
           <span>
             {projects.filter(p => p.status === 'ACTIVE').length} Active • {' '}
-            {projects.filter(p => p.status === 'DRAFT').length} Draft • {' '}
-            {projects.filter(p => p.status === 'ARCHIVED').length} Archived
+            {projects.filter(p => p.status === 'INACTIVE').length} Inactive
           </span>
         </div>
 

@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   ExternalLink,
-  Mail
+  Mail,
+  Image
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -53,6 +54,11 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       name: 'Contact Messages',
       href: '/admin/contact',
       icon: Mail,
+    },
+    {
+      name: 'Media Gallery',
+      href: '/admin/media',
+      icon: Image,
     },
     {
       name: 'Team Members',

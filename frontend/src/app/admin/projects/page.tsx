@@ -276,6 +276,32 @@ export default function AdminProjectsAdvanced() {
     setActiveTab('basic');
   };
 
+  const toggleProjectStatus = async (project: Project) => {
+    try {
+      const newStatus = project.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      await apiClient.updateProject(project.id, { ...project, status: newStatus });
+      await fetchProjects();
+    } catch (error) {
+      console.error('Failed to toggle project status:', error);
+      alert('Failed to update project status');
+    }
+  };
+
+  const deleteProject = async (project: Project) => {
+    if (!confirm(`Are you sure you want to delete the project "${project.title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await apiClient.deleteProject(project.id);
+      await fetchProjects();
+      alert('Project deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      alert('Failed to delete project');
+    }
+  };
+
   const openEditModal = (project: Project) => {
     setEditingProject(project);
     setFormData({
@@ -557,14 +583,16 @@ export default function AdminProjectsAdvanced() {
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => {/* Toggle status */}}
+                            onClick={() => toggleProjectStatus(project)}
                             className="text-gray-600 hover:text-gray-900"
+                            title={project.status === 'ACTIVE' ? 'Deactivate project' : 'Activate project'}
                           >
                             {project.status === 'ACTIVE' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                           <button
-                            onClick={() => {/* Delete project */}}
+                            onClick={() => deleteProject(project)}
                             className="text-red-600 hover:text-red-900"
+                            title="Delete project"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

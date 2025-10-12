@@ -17,7 +17,7 @@ export interface Project {
   projectType?: string;
   imageUrl?: string;
   galleryImages?: string[];
-  status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
+  status: 'ACTIVE' | 'INACTIVE';
   featured: boolean;
   priority?: number;
   metaTitle?: string;

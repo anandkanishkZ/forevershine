@@ -41,7 +41,7 @@ export interface Project {
   budget?: number;
   projectArea?: number;
   projectType?: string;
-  status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
+  status: 'ACTIVE' | 'INACTIVE';
   featured: boolean;
   priority: number;
   

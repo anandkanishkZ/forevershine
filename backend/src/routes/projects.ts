@@ -12,7 +12,10 @@ router.get('/', async (req: Request<{}, ApiResponse, {}, PaginationQuery>, res: 
     const { page = '1', limit = '10', search, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const where: any = {};
+    const where: any = {
+      // Only show ACTIVE projects for public access
+      status: 'ACTIVE'
+    };
     
     if (search) {
       where.OR = [
@@ -22,7 +25,8 @@ router.get('/', async (req: Request<{}, ApiResponse, {}, PaginationQuery>, res: 
       ];
     }
     
-    if (status) {
+    // Allow admin to override status filter if needed
+    if (status && req.headers.authorization) {
       where.status = status;
     }
 

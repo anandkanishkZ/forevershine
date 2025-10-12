@@ -40,7 +40,7 @@ interface ProjectData {
   projectType?: string;
   imageUrl?: string;
   galleryImages?: string[];
-  status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
+  status: 'ACTIVE' | 'INACTIVE';
   featured: boolean;
   priority?: number;
   metaTitle?: string;
@@ -90,11 +90,10 @@ const ComprehensiveProjectDisplay: React.FC<ComprehensiveProjectDisplayProps> = 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       ACTIVE: { color: 'bg-green-100 text-green-800', label: 'Active' },
-      DRAFT: { color: 'bg-yellow-100 text-yellow-800', label: 'Draft' },
-      ARCHIVED: { color: 'bg-gray-100 text-gray-800', label: 'Archived' }
+      INACTIVE: { color: 'bg-red-100 text-red-800', label: 'Inactive' }
     };
     
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.DRAFT;
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ACTIVE;
     
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
