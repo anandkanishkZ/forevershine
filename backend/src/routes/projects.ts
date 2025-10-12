@@ -249,7 +249,8 @@ router.put('/:id',
         where: { id },
         data: {
           ...updateData,
-          completionDate: updateData.completionDate ? new Date(updateData.completionDate) : undefined
+          completionDate: updateData.completionDate ? new Date(updateData.completionDate) : undefined,
+          startDate: updateData.startDate ? new Date(updateData.startDate) : undefined
         }
       });
 
