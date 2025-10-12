@@ -44,13 +44,38 @@ model Service {
 model Project {
   id             String   @id @default(cuid())
   title          String
+  slug           String   @unique
   category       String
   description    String
+  shortDescription String?
   imageUrl       String?
+  galleryImages  String[] // Array of image URLs
   completionDate DateTime?
+  startDate      DateTime?
   clientName     String?
+  location       String?
+  budget         Float?
+  projectArea    Float?
+  projectType    String?
   status         Status   @default(ACTIVE)
   featured       Boolean  @default(false)
+  priority       Int      @default(0)
+  
+  // SEO Meta Fields
+  metaTitle      String?
+  metaDescription String?
+  metaKeywords   String?
+  
+  // Additional Details
+  technologies   String[] // Technologies/materials used
+  teamMembers    String[] // Team member names
+  challenges     String[] // Project challenges
+  achievements   String[] // Key achievements
+  testimonial    String?  // Client testimonial
+  
+  // Social Media
+  socialImages   String[] // Optimized images for social sharing
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

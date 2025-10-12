@@ -28,13 +28,38 @@ export interface Service {
 export interface Project {
   id: string;
   title: string;
+  slug: string;
   category: string;
   description: string;
+  shortDescription?: string;
   imageUrl?: string;
+  galleryImages: string[];
   completionDate?: string;
+  startDate?: string;
   clientName?: string;
+  location?: string;
+  budget?: number;
+  projectArea?: number;
+  projectType?: string;
   status: 'ACTIVE' | 'INACTIVE';
   featured: boolean;
+  priority: number;
+  
+  // SEO Meta Fields
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  
+  // Additional Details
+  technologies: string[];
+  teamMembers: string[];
+  challenges: string[];
+  achievements: string[];
+  testimonial?: string;
+  
+  // Social Media
+  socialImages: string[];
+  
   createdAt: string;
   updatedAt: string;
 }

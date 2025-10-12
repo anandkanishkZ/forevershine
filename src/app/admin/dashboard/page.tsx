@@ -165,13 +165,13 @@ export default function AdminDashboard() {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{card.name.split(' ')[0]}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">
+                    <div className="text-3xl font-bold text-gray-900 mt-1">
                       {loading ? (
                         <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
                       ) : (
                         card.value
                       )}
-                    </p>
+                    </div>
                     <p className="text-xs text-gray-400 mt-1">{card.name.split(' ').slice(1).join(' ')}</p>
                   </div>
                 </div>

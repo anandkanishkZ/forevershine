@@ -95,8 +95,18 @@ router.post('/',
   authorize(['ADMIN', 'SUPER_ADMIN']),
   [
     body('title').notEmpty().withMessage('Title is required'),
+    body('slug').notEmpty().withMessage('Slug is required'),
     body('category').notEmpty().withMessage('Category is required'),
-    body('description').notEmpty().withMessage('Description is required')
+    body('description').notEmpty().withMessage('Description is required'),
+    body('budget').optional().isFloat({ min: 0 }).withMessage('Budget must be a positive number'),
+    body('projectArea').optional().isFloat({ min: 0 }).withMessage('Project area must be a positive number'),
+    body('priority').optional().isInt({ min: 0, max: 10 }).withMessage('Priority must be between 0 and 10'),
+    body('technologies').optional().isArray().withMessage('Technologies must be an array'),
+    body('teamMembers').optional().isArray().withMessage('Team members must be an array'),
+    body('challenges').optional().isArray().withMessage('Challenges must be an array'),
+    body('achievements').optional().isArray().withMessage('Achievements must be an array'),
+    body('galleryImages').optional().isArray().withMessage('Gallery images must be an array'),
+    body('socialImages').optional().isArray().withMessage('Social images must be an array')
   ], 
   async (req: AuthRequest, res: Response<ApiResponse>) => {
   try {
@@ -109,13 +119,69 @@ router.post('/',
       });
     }
 
-    const projectData = req.body;
+    const {
+      title,
+      slug,
+      category,
+      description,
+      shortDescription,
+      clientName,
+      location,
+      completionDate,
+      startDate,
+      budget,
+      projectArea,
+      projectType,
+      imageUrl,
+      galleryImages = [],
+      status = 'ACTIVE',
+      featured = false,
+      priority = 0,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      technologies = [],
+      teamMembers = [],
+      challenges = [],
+      achievements = [],
+      testimonial,
+      socialImages = []
+    } = req.body;
+
+    // Note: Slug uniqueness is enforced by database constraint
     
+    // Create project data object with all fields
+    const projectData: any = {
+      title,
+      slug,
+      category,
+      description,
+      shortDescription,
+      clientName,
+      location,
+      completionDate: completionDate ? new Date(completionDate) : null,
+      startDate: startDate ? new Date(startDate) : null,
+      budget: budget ? parseFloat(budget) : null,
+      projectArea: projectArea ? parseFloat(projectArea) : null,
+      projectType,
+      imageUrl,
+      galleryImages,
+      status,
+      featured,
+      priority: parseInt(priority) || 0,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      technologies,
+      teamMembers,
+      challenges,
+      achievements,
+      testimonial,
+      socialImages
+    };
+
     const project = await prisma.project.create({
-      data: {
-        ...projectData,
-        completionDate: projectData.completionDate ? new Date(projectData.completionDate) : null
-      }
+      data: projectData
     });
 
     res.status(201).json({
@@ -123,8 +189,18 @@ router.post('/',
       message: 'Project created successfully',
       data: project
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create project error:', error);
+    
+    // Handle unique constraint violation
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        message: 'Project with this slug already exists',
+        errors: ['Slug must be unique']
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Failed to create project',
@@ -154,7 +230,7 @@ router.put('/:id',
       }
 
       const { id } = req.params;
-      const updateData = req.body;
+      const updateData: any = req.body;
 
       // Check if project exists
       const existingProject = await prisma.project.findUnique({

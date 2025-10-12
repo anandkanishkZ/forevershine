@@ -16,25 +16,100 @@ import {
   Star,
   StarOff,
   Calendar,
-  User
+  User,
+  MapPin,
+  DollarSign,
+  Ruler,
+  Upload,
+  Image,
+  Target,
+  Award,
+  Users,
+  AlertTriangle,
+  Quote,
+  Share2,
+  Hash,
+  FileText,
+  Lightbulb,
+  Building
 } from 'lucide-react';
 
-export default function AdminProjects() {
+interface FormData {
+  title: string;
+  slug: string;
+  category: string;
+  description: string;
+  shortDescription: string;
+  clientName: string;
+  location: string;
+  completionDate: string;
+  startDate: string;
+  budget: string;
+  projectArea: string;
+  projectType: string;
+  imageUrl: string;
+  galleryImages: string[];
+  status: 'ACTIVE' | 'INACTIVE';
+  featured: boolean;
+  priority: string;
+  
+  // SEO Fields
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  
+  // Additional Details
+  technologies: string[];
+  teamMembers: string[];
+  challenges: string[];
+  achievements: string[];
+  testimonial: string;
+  
+  // Social Media
+  socialImages: string[];
+}
+
+export default function AdminProjectsAdvanced() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState({
+  const [activeTab, setActiveTab] = useState('basic');
+  const [formData, setFormData] = useState<FormData>({
     title: '',
-    description: '',
+    slug: '',
     category: '',
+    description: '',
+    shortDescription: '',
     clientName: '',
+    location: '',
     completionDate: '',
+    startDate: '',
+    budget: '',
+    projectArea: '',
+    projectType: '',
     imageUrl: '',
-    status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
-    featured: false
+    galleryImages: [],
+    status: 'ACTIVE',
+    featured: false,
+    priority: '0',
+    
+    // SEO Fields
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
+    
+    // Additional Details
+    technologies: [],
+    teamMembers: [],
+    challenges: [],
+    achievements: [],
+    testimonial: '',
+    
+    // Social Media
+    socialImages: []
   });
 
   const categories = [
@@ -47,12 +122,22 @@ export default function AdminProjects() {
     'Other'
   ];
 
+  const projectTypes = [
+    'New Construction',
+    'Renovation',
+    'Extension',
+    'Restoration',
+    'Maintenance',
+    'Consultation'
+  ];
+
   useEffect(() => {
     fetchProjects();
   }, []);
 
   const fetchProjects = async () => {
     try {
+      setLoading(true);
       const response = await apiClient.getProjects();
       if (response.success) {
         setProjects(response.data || []);
@@ -64,44 +149,38 @@ export default function AdminProjects() {
     }
   };
 
-  const handleEdit = (project: Project) => {
-    setEditingProject(project);
-    setFormData({
-      title: project.title,
-      description: project.description,
-      category: project.category,
-      clientName: project.clientName || '',
-      completionDate: project.completionDate || '',
-      imageUrl: project.imageUrl || '',
-      status: project.status,
-      featured: project.featured
-    });
-    setShowModal(true);
+  const generateSlug = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
+  const handleTitleChange = (title: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title,
+      slug: generateSlug(title),
+      metaTitle: title ? `${title} | Forever Shine Engineering` : ''
+    }));
+  };
 
-    try {
-      await apiClient.deleteProject(id);
-      await fetchProjects();
-    } catch (error) {
-      console.error('Failed to delete project:', error);
-      alert('Failed to delete project');
+  const addArrayItem = (field: keyof FormData, value: string) => {
+    if (value.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: [...(prev[field] as string[]), value.trim()]
+      }));
     }
   };
 
-  const toggleFeatured = async (project: Project) => {
-    try {
-      await apiClient.updateProject(project.id, {
-        ...project,
-        featured: !project.featured
-      });
-      await fetchProjects();
-    } catch (error) {
-      console.error('Failed to update project:', error);
-      alert('Failed to update project');
-    }
+  const removeArrayItem = (field: keyof FormData, index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: (prev[field] as string[]).filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,13 +189,37 @@ export default function AdminProjects() {
     try {
       const projectData = {
         title: formData.title,
-        description: formData.description,
+        slug: formData.slug,
         category: formData.category,
+        description: formData.description,
+        shortDescription: formData.shortDescription || undefined,
         imageUrl: formData.imageUrl || undefined,
+        galleryImages: formData.galleryImages,
         completionDate: formData.completionDate || undefined,
+        startDate: formData.startDate || undefined,
         clientName: formData.clientName || undefined,
+        location: formData.location || undefined,
+        budget: formData.budget ? parseFloat(formData.budget) : undefined,
+        projectArea: formData.projectArea ? parseFloat(formData.projectArea) : undefined,
+        projectType: formData.projectType || undefined,
         status: formData.status,
-        featured: formData.featured
+        featured: formData.featured,
+        priority: parseInt(formData.priority),
+        
+        // SEO Fields
+        metaTitle: formData.metaTitle || undefined,
+        metaDescription: formData.metaDescription || undefined,
+        metaKeywords: formData.metaKeywords || undefined,
+        
+        // Additional Details
+        technologies: formData.technologies,
+        teamMembers: formData.teamMembers,
+        challenges: formData.challenges,
+        achievements: formData.achievements,
+        testimonial: formData.testimonial || undefined,
+        
+        // Social Media
+        socialImages: formData.socialImages
       };
 
       if (editingProject) {
@@ -138,321 +241,762 @@ export default function AdminProjects() {
   const resetForm = () => {
     setFormData({
       title: '',
-      description: '',
+      slug: '',
       category: '',
+      description: '',
+      shortDescription: '',
       clientName: '',
+      location: '',
       completionDate: '',
+      startDate: '',
+      budget: '',
+      projectArea: '',
+      projectType: '',
       imageUrl: '',
+      galleryImages: [],
       status: 'ACTIVE',
-      featured: false
+      featured: false,
+      priority: '0',
+      
+      // SEO Fields
+      metaTitle: '',
+      metaDescription: '',
+      metaKeywords: '',
+      
+      // Additional Details
+      technologies: [],
+      teamMembers: [],
+      challenges: [],
+      achievements: [],
+      testimonial: '',
+      
+      // Social Media
+      socialImages: []
     });
+    setActiveTab('basic');
+  };
+
+  const openEditModal = (project: Project) => {
+    setEditingProject(project);
+    setFormData({
+      title: project.title,
+      slug: project.slug,
+      category: project.category,
+      description: project.description,
+      shortDescription: project.shortDescription || '',
+      clientName: project.clientName || '',
+      location: project.location || '',
+      completionDate: project.completionDate ? project.completionDate.split('T')[0] : '',
+      startDate: project.startDate ? project.startDate.split('T')[0] : '',
+      budget: project.budget?.toString() || '',
+      projectArea: project.projectArea?.toString() || '',
+      projectType: project.projectType || '',
+      imageUrl: project.imageUrl || '',
+      galleryImages: project.galleryImages || [],
+      status: project.status,
+      featured: project.featured,
+      priority: project.priority.toString(),
+      
+      // SEO Fields
+      metaTitle: project.metaTitle || '',
+      metaDescription: project.metaDescription || '',
+      metaKeywords: project.metaKeywords || '',
+      
+      // Additional Details
+      technologies: project.technologies || [],
+      teamMembers: project.teamMembers || [],
+      challenges: project.challenges || [],
+      achievements: project.achievements || [],
+      testimonial: project.testimonial || '',
+      
+      // Social Media
+      socialImages: project.socialImages || []
+    });
+    setShowModal(true);
   };
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.category.toLowerCase().includes(searchTerm.toLowerCase());
+                         project.clientName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !filterCategory || project.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
+  const TabButton = ({ id, label, icon: Icon }: { id: string; label: string; icon: any }) => (
+    <button
+      type="button"
+      onClick={() => setActiveTab(id)}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+        activeTab === id
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </button>
+  );
+
+  const ArrayInput = ({ 
+    label, 
+    items, 
+    field, 
+    placeholder,
+    icon: Icon 
+  }: { 
+    label: string; 
+    items: string[]; 
+    field: keyof FormData; 
+    placeholder: string;
+    icon: any;
+  }) => {
+    const [inputValue, setInputValue] = useState('');
+
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Icon className="w-4 h-4 inline mr-2" />
+          {label}
+        </label>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={placeholder}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addArrayItem(field, inputValue);
+                  setInputValue('');
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                addArrayItem(field, inputValue);
+                setInputValue('');
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {items.map((item, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+              >
+                {item}
+                <button
+                  type="button"
+                  onClick={() => removeArrayItem(field, index)}
+                  className="text-gray-500 hover:text-red-500"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <AdminDashboardLayout title="Projects Management">
+    <AdminDashboardLayout title="Advanced Project Management">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-            <p className="text-gray-600">Manage your company projects and portfolio</p>
+            <h1 className="text-2xl font-bold text-gray-900">Advanced Project Management</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Create and manage projects with comprehensive metadata and SEO optimization
+            </p>
           </div>
           <button
             onClick={() => {
-              setEditingProject(null);
               resetForm();
               setShowModal(true);
             }}
-            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Project
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Project
           </button>
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Categories</option>
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
         </div>
 
         {/* Projects Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow animate-pulse">
-                <div className="h-48 bg-gray-200 rounded-t-lg"></div>
-                <div className="p-6">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                  <div className="space-y-2">
-                    <div className="h-2 bg-gray-200 rounded"></div>
-                    <div className="h-2 bg-gray-200 rounded"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
-              <div key={project.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                {project.imageUrl && (
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                )}
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
-                    <div className="flex items-center space-x-1">
-                      <button
-                        onClick={() => toggleFeatured(project)}
-                        className={`p-1 rounded ${project.featured ? 'text-yellow-600' : 'text-gray-400'}`}
-                      >
-                        {project.featured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
-                      </button>
-                      {project.status === 'ACTIVE' ? (
-                        <Eye className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      )}
-                    </div>
-                  </div>
-                  
-                  <p className="text-blue-600 text-sm font-medium mb-2">{project.category}</p>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{project.description}</p>
-                  
-                  {project.clientName && (
-                    <div className="flex items-center text-gray-500 text-sm mb-2">
-                      <User className="h-3 w-3 mr-1" />
-                      Client: {project.clientName}
-                    </div>
-                  )}
-
-                  {project.completionDate && (
-                    <div className="flex items-center text-gray-500 text-sm mb-4">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {new Date(project.completionDate).toLocaleDateString()}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                        project.status === 'ACTIVE' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {project.status}
-                      </span>
-                      {project.featured && (
-                        <span className="inline-flex px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(project)}
-                        className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {editingProject ? 'Edit Project' : 'Add New Project'}
-                </h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4 max-h-96 overflow-y-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Title *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Category *
-                    </label>
-                    <select
-                      required
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description *
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Client Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.clientName}
-                      onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Completion Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.completionDate}
-                      onChange={(e) => setFormData({ ...formData, completionDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Main Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-500">Loading projects...</p>
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <Building className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No projects found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Client
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
-                    </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as 'ACTIVE' | 'INACTIVE' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Priority
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredProjects.map((project) => (
+                    <tr key={project.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            {project.imageUrl ? (
+                              <img
+                                className="h-10 w-10 rounded-lg object-cover"
+                                src={project.imageUrl}
+                                alt={project.title}
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                <Building className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                              {project.title}
+                              {project.featured && (
+                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500">{project.slug}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {project.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {project.clientName || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          project.status === 'ACTIVE' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {project.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Target className="w-4 h-4 mr-1 text-gray-400" />
+                          {project.priority}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => openEditModal(project)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {/* Toggle status */}}
+                            className="text-gray-600 hover:text-gray-900"
+                          >
+                            {project.status === 'ACTIVE' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                          <button
+                            onClick={() => {/* Delete project */}}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Enhanced Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {editingProject ? 'Edit Project' : 'Add New Project'}
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="flex overflow-hidden" style={{ height: 'calc(90vh - 80px)' }}>
+              {/* Tab Navigation */}
+              <div className="w-64 bg-gray-50 p-4 overflow-y-auto">
+                <div className="space-y-2">
+                  <TabButton id="basic" label="Basic Info" icon={FileText} />
+                  <TabButton id="details" label="Details" icon={Building} />
+                  <TabButton id="media" label="Media & Images" icon={Image} />
+                  <TabButton id="seo" label="SEO & Meta" icon={Hash} />
+                  <TabButton id="team" label="Team & Tech" icon={Users} />
+                  <TabButton id="achievements" label="Achievements" icon={Award} />
+                  <TabButton id="social" label="Social Media" icon={Share2} />
+                </div>
+              </div>
+
+              {/* Form Content */}
+              <div className="flex-1 overflow-y-auto">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                  {/* Basic Info Tab */}
+                  {activeTab === 'basic' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Basic Information</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Project Title *
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => handleTitleChange(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            URL Slug *
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.slug}
+                            onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Category *
+                          </label>
+                          <select
+                            value={formData.category}
+                            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map(category => (
+                              <option key={category} value={category}>{category}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Project Type
+                          </label>
+                          <select
+                            value={formData.projectType}
+                            onChange={(e) => setFormData(prev => ({ ...prev, projectType: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select Type</option>
+                            {projectTypes.map(type => (
+                              <option key={type} value={type}>{type}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Project Description *
+                        </label>
+                        <textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Short Description
+                        </label>
+                        <textarea
+                          value={formData.shortDescription}
+                          onChange={(e) => setFormData(prev => ({ ...prev, shortDescription: e.target.value }))}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Brief summary for cards and previews"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="featured"
+                            checked={formData.featured}
+                            onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                            Featured Project
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Priority (0-10)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="10"
+                            value={formData.priority}
+                            onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Details Tab */}
+                  {activeTab === 'details' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Project Details</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <User className="w-4 h-4 inline mr-2" />
+                            Client Name
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.clientName}
+                            onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <MapPin className="w-4 h-4 inline mr-2" />
+                            Location
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.location}
+                            onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <Calendar className="w-4 h-4 inline mr-2" />
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={formData.startDate}
+                            onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <Calendar className="w-4 h-4 inline mr-2" />
+                            Completion Date
+                          </label>
+                          <input
+                            type="date"
+                            value={formData.completionDate}
+                            onChange={(e) => setFormData(prev => ({ ...prev, completionDate: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <DollarSign className="w-4 h-4 inline mr-2" />
+                            Budget (NPR)
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.budget}
+                            onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <Ruler className="w-4 h-4 inline mr-2" />
+                            Project Area (sq ft)
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.projectArea}
+                            onChange={(e) => setFormData(prev => ({ ...prev, projectArea: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <Quote className="w-4 h-4 inline mr-2" />
+                          Client Testimonial
+                        </label>
+                        <textarea
+                          value={formData.testimonial}
+                          onChange={(e) => setFormData(prev => ({ ...prev, testimonial: e.target.value }))}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Client feedback or testimonial about the project"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Media Tab */}
+                  {activeTab === 'media' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Media & Images</h3>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <Image className="w-4 h-4 inline mr-2" />
+                          Main Project Image
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.imageUrl}
+                          onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
+
+                      <ArrayInput
+                        label="Gallery Images"
+                        items={formData.galleryImages}
+                        field="galleryImages"
+                        placeholder="Add image URL"
+                        icon={Image}
+                      />
+                    </div>
+                  )}
+
+                  {/* SEO Tab */}
+                  {activeTab === 'seo' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">SEO & Meta Data</h3>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Meta Title
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.metaTitle}
+                          onChange={(e) => setFormData(prev => ({ ...prev, metaTitle: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="SEO optimized title for search engines"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{formData.metaTitle.length}/60 characters</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Meta Description
+                        </label>
+                        <textarea
+                          value={formData.metaDescription}
+                          onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="SEO description for search results"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Meta Keywords
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.metaKeywords}
+                          onChange={(e) => setFormData(prev => ({ ...prev, metaKeywords: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="keyword1, keyword2, keyword3"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Team & Tech Tab */}
+                  {activeTab === 'team' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Team & Technology</h3>
+                      
+                      <ArrayInput
+                        label="Technologies Used"
+                        items={formData.technologies}
+                        field="technologies"
+                        placeholder="Add technology/material"
+                        icon={Lightbulb}
+                      />
+
+                      <ArrayInput
+                        label="Team Members"
+                        items={formData.teamMembers}
+                        field="teamMembers"
+                        placeholder="Add team member name"
+                        icon={Users}
+                      />
+
+                      <ArrayInput
+                        label="Project Challenges"
+                        items={formData.challenges}
+                        field="challenges"
+                        placeholder="Add challenge faced"
+                        icon={AlertTriangle}
+                      />
+                    </div>
+                  )}
+
+                  {/* Achievements Tab */}
+                  {activeTab === 'achievements' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Achievements & Awards</h3>
+                      
+                      <ArrayInput
+                        label="Key Achievements"
+                        items={formData.achievements}
+                        field="achievements"
+                        placeholder="Add achievement or award"
+                        icon={Award}
+                      />
+                    </div>
+                  )}
+
+                  {/* Social Media Tab */}
+                  {activeTab === 'social' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Social Media</h3>
+                      
+                      <ArrayInput
+                        label="Social Media Images"
+                        items={formData.socialImages}
+                        field="socialImages"
+                        placeholder="Add social media optimized image URL"
+                        icon={Share2}
+                      />
+                    </div>
+                  )}
+
+                  {/* Form Actions */}
+                  <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                     >
-                      <option value="ACTIVE">Active</option>
-                      <option value="INACTIVE">Inactive</option>
-                    </select>
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      {editingProject ? 'Update Project' : 'Create Project'}
+                    </button>
                   </div>
-
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="featured"
-                      checked={formData.featured}
-                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="featured" className="ml-2 block text-sm font-medium text-gray-700">
-                      Featured Project
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 flex items-center"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {editingProject ? 'Update' : 'Create'} Project
-                  </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </AdminDashboardLayout>
   );
 }
