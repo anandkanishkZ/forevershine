@@ -22,6 +22,7 @@ export interface Project {
   priority?: number;
   metaTitle?: string;
   metaDescription?: string;
+  metaKeywords?: string;
   technologies?: string[];
   teamMembers?: string[];
   challenges?: string[];

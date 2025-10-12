@@ -12,6 +12,23 @@ export interface ApiResponse<T = any> {
   };
 }
 
+export interface MediaFile {
+  id: string;
+  filename: string;
+  originalName: string;
+  category: string;
+  url: string;
+  size: number;
+  type: 'image' | 'document';
+  mimeType: string;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  createdAt: string;
+  thumbnailUrl?: string;
+}
+
 export interface Service {
   id: string;
   title: string;

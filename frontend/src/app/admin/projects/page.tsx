@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
+import MediaPicker from '@/components/admin/MediaPicker';
 import apiClient from '@/utils/admin/apiClient';
-import { Project } from '@/types/admin';
+import { Project, MediaFile } from '@/types/admin';
 import {
   Plus,
   Search,
@@ -77,6 +78,10 @@ export default function AdminProjectsAdvanced() {
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
+  const [showMainImagePicker, setShowMainImagePicker] = useState(false);
+  const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+  const [selectedMainImage, setSelectedMainImage] = useState<MediaFile | null>(null);
+  const [selectedGalleryImages, setSelectedGalleryImages] = useState<MediaFile[]>([]);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     slug: '',
@@ -183,6 +188,57 @@ export default function AdminProjectsAdvanced() {
     }));
   };
 
+  // Media handling functions
+  const handleMainImageSelect = (file: MediaFile | MediaFile[]) => {
+    const selectedFile = Array.isArray(file) ? file[0] : file;
+    setSelectedMainImage(selectedFile);
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: selectedFile.url
+    }));
+    setShowMainImagePicker(false);
+  };
+
+  const handleGalleryImagesSelect = (files: MediaFile | MediaFile[]) => {
+    const selectedFiles = Array.isArray(files) ? files : [files];
+    setSelectedGalleryImages(selectedFiles);
+    setFormData(prev => ({
+      ...prev,
+      galleryImages: selectedFiles.map(file => file.url)
+    }));
+    setShowGalleryPicker(false);
+  };
+
+  const removeMainImage = () => {
+    setSelectedMainImage(null);
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: ''
+    }));
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const newImages = selectedGalleryImages.filter((_, i) => i !== index);
+    setSelectedGalleryImages(newImages);
+    setFormData(prev => ({
+      ...prev,
+      galleryImages: newImages.map(file => file.url)
+    }));
+  };
+
+  // Convert URLs to MediaFile objects for display
+  const urlToMediaFile = (url: string, index: number): MediaFile => ({
+    id: `url-${index}`,
+    filename: url.split('/').pop() || 'image',
+    originalName: url.split('/').pop() || 'image',
+    category: 'projects',
+    url: url,
+    size: 0,
+    type: 'image',
+    mimeType: 'image/jpeg',
+    createdAt: new Date().toISOString()
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -274,6 +330,8 @@ export default function AdminProjectsAdvanced() {
       socialImages: []
     });
     setActiveTab('basic');
+    setSelectedMainImage(null);
+    setSelectedGalleryImages([]);
   };
 
   const toggleProjectStatus = async (project: Project) => {
@@ -338,6 +396,20 @@ export default function AdminProjectsAdvanced() {
       // Social Media
       socialImages: project.socialImages || []
     });
+    
+    // Set media state for editing
+    if (project.imageUrl) {
+      setSelectedMainImage(urlToMediaFile(project.imageUrl, 0));
+    } else {
+      setSelectedMainImage(null);
+    }
+    
+    if (project.galleryImages && project.galleryImages.length > 0) {
+      setSelectedGalleryImages(project.galleryImages.map((url, index) => urlToMediaFile(url, index)));
+    } else {
+      setSelectedGalleryImages([]);
+    }
+    
     setShowModal(true);
   };
 
@@ -869,27 +941,112 @@ export default function AdminProjectsAdvanced() {
                     <div className="space-y-6">
                       <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Media & Images</h3>
                       
+                      {/* Main Project Image */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
                           <Image className="w-4 h-4 inline mr-2" />
-                          Main Project Image
+                          Main Project Image (Single Image)
                         </label>
-                        <input
-                          type="url"
-                          value={formData.imageUrl}
-                          onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="https://example.com/image.jpg"
-                        />
+                        
+                        {selectedMainImage ? (
+                          <div className="relative inline-block">
+                            <img
+                              src={selectedMainImage.url}
+                              alt={selectedMainImage.originalName}
+                              className="w-32 h-32 object-cover border border-gray-300 rounded-lg shadow-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeMainImage}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                            <div className="mt-2 text-sm text-gray-600 max-w-32 truncate">
+                              {selectedMainImage.originalName}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <Image className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-500 mb-3">No main image selected</p>
+                            <button
+                              type="button"
+                              onClick={() => setShowMainImagePicker(true)}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Select Main Image
+                            </button>
+                          </div>
+                        )}
+                        
+                        {selectedMainImage && (
+                          <button
+                            type="button"
+                            onClick={() => setShowMainImagePicker(true)}
+                            className="mt-3 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-2"
+                          >
+                            <Edit className="w-4 h-4" />
+                            Change Image
+                          </button>
+                        )}
                       </div>
 
-                      <ArrayInput
-                        label="Gallery Images"
-                        items={formData.galleryImages}
-                        field="galleryImages"
-                        placeholder="Add image URL"
-                        icon={Image}
-                      />
+                      {/* Gallery Images */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          <Image className="w-4 h-4 inline mr-2" />
+                          Gallery Images (Multiple Images)
+                        </label>
+                        
+                        {selectedGalleryImages.length > 0 ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                              {selectedGalleryImages.map((image, index) => (
+                                <div key={image.id} className="relative group">
+                                  <img
+                                    src={image.url}
+                                    alt={image.originalName}
+                                    className="w-full h-24 object-cover border border-gray-300 rounded-lg shadow-sm"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeGalleryImage(index)}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                  <div className="mt-1 text-xs text-gray-600 truncate">
+                                    {image.originalName}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowGalleryPicker(true)}
+                              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-2"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Add More Images
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <Image className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-500 mb-3">No gallery images selected</p>
+                            <button
+                              type="button"
+                              onClick={() => setShowGalleryPicker(true)}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Select Gallery Images
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -1025,6 +1182,27 @@ export default function AdminProjectsAdvanced() {
           </div>
         </div>
       )}
+
+      {/* Main Image Picker Modal */}
+      <MediaPicker
+        isOpen={showMainImagePicker}
+        onClose={() => setShowMainImagePicker(false)}
+        onSelect={handleMainImageSelect}
+        multiple={false}
+        acceptedTypes={['image']}
+        title="Select Main Project Image"
+      />
+
+      {/* Gallery Images Picker Modal */}
+      <MediaPicker
+        isOpen={showGalleryPicker}
+        onClose={() => setShowGalleryPicker(false)}
+        onSelect={handleGalleryImagesSelect}
+        multiple={true}
+        acceptedTypes={['image']}
+        title="Select Gallery Images"
+        selectedFiles={selectedGalleryImages}
+      />
     </AdminDashboardLayout>
   );
 }

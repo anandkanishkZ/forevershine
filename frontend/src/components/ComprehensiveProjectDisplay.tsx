@@ -400,27 +400,6 @@ const ComprehensiveProjectDisplay: React.FC<ComprehensiveProjectDisplayProps> = 
           </div>
         )}
 
-        {/* Meta Information */}
-        {showAllDetails && (project.metaTitle || project.metaDescription) && (
-          <div className="space-y-3 border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900">SEO Information</h3>
-            <div className="space-y-2 text-sm">
-              {project.metaTitle && (
-                <div>
-                  <span className="font-medium text-gray-600">Meta Title:</span>
-                  <p className="text-gray-700">{project.metaTitle}</p>
-                </div>
-              )}
-              {project.metaDescription && (
-                <div>
-                  <span className="font-medium text-gray-600">Meta Description:</span>
-                  <p className="text-gray-700">{project.metaDescription}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Timestamps */}
         {showAllDetails && (
           <div className="space-y-2 text-xs text-gray-500 border-t pt-4">

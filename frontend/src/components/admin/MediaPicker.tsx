@@ -17,23 +17,7 @@ import {
   Plus
 } from 'lucide-react';
 import apiClient from '@/utils/admin/apiClient';
-
-interface MediaFile {
-  id: string;
-  filename: string;
-  originalName: string;
-  category: string;
-  url: string;
-  size: number;
-  type: 'image' | 'document';
-  mimeType: string;
-  dimensions?: {
-    width: number;
-    height: number;
-  };
-  createdAt: string;
-  thumbnailUrl?: string;
-}
+import { MediaFile } from '@/types/admin';
 
 interface MediaPickerProps {
   isOpen: boolean;

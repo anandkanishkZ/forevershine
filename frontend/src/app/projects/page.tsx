@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Metadata } from 'next';
 import SectionTitle from '@/components/SectionTitle';
 import Button from '@/components/Button';
 import publicApiClient, { Project } from '@/utils/publicApiClient';
