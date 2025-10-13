@@ -44,6 +44,25 @@ export interface Service {
   updatedAt: string;
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  position: string;
+  bio?: string;
+  imageUrl?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  tiktok?: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -144,6 +163,20 @@ class PublicApiClient {
       return await response.json();
     } catch (error) {
       console.error('Failed to fetch public setting:', error);
+      throw error;
+    }
+  }
+
+  // Get team members (public route)
+  async getTeamMembers(): Promise<ApiResponse<TeamMember[]>> {
+    try {
+      const response = await fetch(`${this.baseURL}/team`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch team members:', error);
       throw error;
     }
   }

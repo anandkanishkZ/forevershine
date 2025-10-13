@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle,
   Award,
@@ -9,42 +9,36 @@ import {
   Target,
   Lightbulb,
   Heart,
+  Linkedin,
+  Mail,
+  Phone,
 } from 'lucide-react';
 import SectionTitle from '@/components/SectionTitle';
 import Button from '@/components/Button';
+import SocialMediaLinks from '@/components/SocialMediaLinks';
 import Image from 'next/image';
+import publicApiClient, { TeamMember } from '@/utils/publicApiClient';
 
 const About = () => {
-  const teamMembers = [
-    {
-      name: 'Robert Johnson',
-      position: 'CEO & Founder',
-      image:
-        'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'With over 20 years of experience in engineering and construction, Robert leads our company with vision and expertise.',
-    },
-    {
-      name: 'Emily Chen',
-      position: 'Chief Architect',
-      image:
-        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Emily specializes in sustainable architectural design and has led numerous award-winning projects.',
-    },
-    {
-      name: 'Michael Rodriguez',
-      position: 'Civil Engineering Director',
-      image:
-        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Michael brings extensive expertise in civil engineering with a focus on structural integrity and safety.',
-    },
-    {
-      name: 'Sarah Williams',
-      position: 'Interior Design Lead',
-      image:
-        'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Sarah&apos;s innovative approach to interior design has transformed countless spaces into functional works of art.',
-    },
-  ];
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
+
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await publicApiClient.getTeamMembers();
+      if (response.success && response.data) {
+        setTeamMembers(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch team members:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const milestones = [
     {
@@ -223,6 +217,101 @@ const About = () => {
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Meet Our Team Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <SectionTitle
+            title="Meet Our Team"
+            subtitle="The passionate professionals behind our success"
+            center={true}
+          />
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-gray-50 rounded-lg shadow animate-pulse">
+                  <div className="h-64 bg-gray-200 rounded-t-lg"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-4"></div>
+                    <div className="space-y-2">
+                      <div className="h-2 bg-gray-200 rounded"></div>
+                      <div className="h-2 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : teamMembers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+              {teamMembers.map((member) => (
+                <div key={member.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow group">
+                  {member.imageUrl && (
+                    <div className="relative h-64 overflow-hidden rounded-t-lg">
+                      <Image
+                        src={member.imageUrl.startsWith('http') ? member.imageUrl : `http://localhost:5000/api/media/serve/${member.imageUrl}`}
+                        alt={member.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
+                    <p className="text-blue-600 font-medium mb-3">{member.position}</p>
+                    
+                    {member.bio && (
+                      <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                        {member.bio}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {member.email && (
+                          <a
+                            href={`mailto:${member.email}`}
+                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Send Email"
+                          >
+                            <Mail className="h-4 w-4" />
+                          </a>
+                        )}
+                        
+                        {member.phone && (
+                          <a
+                            href={`tel:${member.phone}`}
+                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Call Phone"
+                          >
+                            <Phone className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                      
+                      {/* Social Media Links */}
+                      <SocialMediaLinks
+                        linkedin={member.linkedin}
+                        facebook={member.facebook}
+                        twitter={member.twitter}
+                        instagram={member.instagram}
+                        tiktok={member.tiktok}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-gray-600">No team members found. Add team members from the admin panel.</p>
+            </div>
+          )}
         </div>
       </section>
     </div>

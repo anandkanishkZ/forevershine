@@ -142,6 +142,10 @@ model TeamMember {
   email        String?
   phone        String?
   linkedin     String?
+  facebook     String?
+  twitter      String?
+  instagram    String?
+  tiktok       String?
   status       Status   @default(ACTIVE)
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())

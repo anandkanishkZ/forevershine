@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
+import MediaPicker from '@/components/admin/MediaPicker';
+import SocialMediaLinks from '@/components/SocialMediaLinks';
 import apiClient from '@/utils/admin/apiClient';
+import { toast } from 'react-toastify';
+import Image from 'next/image';
 import {
   Plus,
   Search,
@@ -14,7 +18,9 @@ import {
   Save,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Upload,
+  ImageIcon
 } from 'lucide-react';
 
 interface TeamMember {
@@ -25,11 +31,13 @@ interface TeamMember {
   phone?: string;
   bio?: string;
   imageUrl?: string;
-  linkedinUrl?: string;
-  experience?: string;
-  specialties: string[];
+  linkedin?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  tiktok?: string;
   status: 'ACTIVE' | 'INACTIVE';
-  featured: boolean;
+  displayOrder: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -39,6 +47,7 @@ export default function AdminTeam() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -47,11 +56,13 @@ export default function AdminTeam() {
     phone: '',
     bio: '',
     imageUrl: '',
-    linkedinUrl: '',
-    experience: '',
-    specialties: [''],
+    linkedin: '',
+    facebook: '',
+    twitter: '',
+    instagram: '',
+    tiktok: '',
     status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
-    featured: false
+    displayOrder: 0
   });
 
   useEffect(() => {
@@ -66,25 +77,7 @@ export default function AdminTeam() {
       }
     } catch (error) {
       console.error('Failed to fetch team members:', error);
-      // Mock data for now since backend might not be implemented
-      setTeamMembers([
-        {
-          id: '1',
-          name: 'Ram Bahadur Thapa',
-          position: 'Senior Civil Engineer',
-          email: 'ram@forevershine.com',
-          phone: '+977-123-456-789',
-          bio: 'Experienced civil engineer with 15+ years in structural design and property valuation.',
-          imageUrl: '/team/ram.jpg',
-          linkedinUrl: '',
-          experience: '15+ years',
-          specialties: ['Structural Design', 'Property Valuation', 'Project Management'],
-          status: 'ACTIVE',
-          featured: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]);
+      toast.error('Failed to fetch team members');
     } finally {
       setLoading(false);
     }
@@ -99,11 +92,13 @@ export default function AdminTeam() {
       phone: member.phone || '',
       bio: member.bio || '',
       imageUrl: member.imageUrl || '',
-      linkedinUrl: member.linkedinUrl || '',
-      experience: member.experience || '',
-      specialties: member.specialties.length > 0 ? member.specialties : [''],
+      linkedin: member.linkedin || '',
+      facebook: member.facebook || '',
+      twitter: member.twitter || '',
+      instagram: member.instagram || '',
+      tiktok: member.tiktok || '',
       status: member.status,
-      featured: member.featured
+      displayOrder: member.displayOrder
     });
     setShowModal(true);
   };
@@ -112,12 +107,12 @@ export default function AdminTeam() {
     if (!confirm('Are you sure you want to delete this team member?')) return;
 
     try {
-      // await apiClient.deleteTeamMember(id);
+      await apiClient.deleteTeamMember(id);
       await fetchTeamMembers();
-      alert('Team member deleted successfully');
+      toast.success('Team member deleted successfully');
     } catch (error) {
       console.error('Failed to delete team member:', error);
-      alert('Failed to delete team member');
+      toast.error('Failed to delete team member');
     }
   };
 
@@ -126,24 +121,24 @@ export default function AdminTeam() {
     
     try {
       const memberData = {
-        ...formData,
-        specialties: formData.specialties.filter(specialty => specialty.trim() !== '')
+        ...formData
       };
 
       if (editingMember) {
-        // await apiClient.updateTeamMember(editingMember.id, memberData);
+        await apiClient.updateTeamMember(editingMember.id, memberData);
+        toast.success('Team member updated successfully');
       } else {
-        // await apiClient.createTeamMember(memberData);
+        await apiClient.createTeamMember(memberData);
+        toast.success('Team member created successfully');
       }
 
       setShowModal(false);
       setEditingMember(null);
       resetForm();
       await fetchTeamMembers();
-      alert('Team member saved successfully');
     } catch (error) {
       console.error('Failed to save team member:', error);
-      alert('Failed to save team member');
+      toast.error('Failed to save team member');
     }
   };
 
@@ -155,37 +150,25 @@ export default function AdminTeam() {
       phone: '',
       bio: '',
       imageUrl: '',
-      linkedinUrl: '',
-      experience: '',
-      specialties: [''],
+      linkedin: '',
+      facebook: '',
+      twitter: '',
+      instagram: '',
+      tiktok: '',
       status: 'ACTIVE',
-      featured: false
+      displayOrder: 0
     });
   };
 
-  const addSpecialty = () => {
+  const handleMediaSelect = (file: any) => {
     setFormData({
       ...formData,
-      specialties: [...formData.specialties, '']
+      imageUrl: file.url
     });
+    setShowMediaPicker(false);
   };
 
-  const updateSpecialty = (index: number, value: string) => {
-    const newSpecialties = [...formData.specialties];
-    newSpecialties[index] = value;
-    setFormData({
-      ...formData,
-      specialties: newSpecialties
-    });
-  };
 
-  const removeSpecialty = (index: number) => {
-    const newSpecialties = formData.specialties.filter((_, i) => i !== index);
-    setFormData({
-      ...formData,
-      specialties: newSpecialties.length > 0 ? newSpecialties : ['']
-    });
-  };
 
   const filteredMembers = teamMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -248,11 +231,14 @@ export default function AdminTeam() {
             {filteredMembers.map((member) => (
               <div key={member.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
                 {member.imageUrl && (
-                  <img
-                    src={member.imageUrl}
-                    alt={member.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={member.imageUrl.startsWith('http') ? member.imageUrl : `http://localhost:5000/api/media/serve/${member.imageUrl}`}
+                      alt={member.name}
+                      fill
+                      className="object-cover rounded-t-lg"
+                    />
+                  </div>
                 )}
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
@@ -285,23 +271,17 @@ export default function AdminTeam() {
                     </div>
                   )}
 
-                  {member.specialties.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-500 mb-2">Specialties:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {member.specialties.slice(0, 3).map((specialty, index) => (
-                          <span key={index} className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
-                            {specialty}
-                          </span>
-                        ))}
-                        {member.specialties.length > 3 && (
-                          <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
-                            +{member.specialties.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  {/* Social Media Links */}
+                  <div className="mb-4">
+                    <SocialMediaLinks
+                      linkedin={member.linkedin}
+                      facebook={member.facebook}
+                      twitter={member.twitter}
+                      instagram={member.instagram}
+                      tiktok={member.tiktok}
+                      size="sm"
+                    />
+                  </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -312,11 +292,9 @@ export default function AdminTeam() {
                       }`}>
                         {member.status}
                       </span>
-                      {member.featured && (
-                        <span className="inline-flex px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
-                          Featured
-                        </span>
-                      )}
+                      <span className="inline-flex px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        Order: {member.displayOrder}
+                      </span>
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -423,106 +401,156 @@ export default function AdminTeam() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      LinkedIn URL
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.linkedinUrl}
-                      onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                {/* Profile Image */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profile Image
+                  </label>
+                  <div className="border border-gray-300 rounded-md p-4">
+                    {formData.imageUrl ? (
+                      <div className="space-y-3">
+                        <div className="relative w-32 h-32 mx-auto">
+                          <Image
+                            src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `http://localhost:5000/api/media/serve/${formData.imageUrl}`}
+                            alt="Profile preview"
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowMediaPicker(true)}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            Change Image
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowMediaPicker(true)}
+                            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Select Image
+                          </button>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">Select a profile image for the team member</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
+                {/* Social Media Links */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Experience
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Social Media Links
                   </label>
-                  <input
-                    type="text"
-                    value={formData.experience}
-                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="e.g., 15+ years"
-                  />
-                </div>
-
-                {/* Specialties */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Specialties
-                  </label>
-                  {formData.specialties.map((specialty, index) => (
-                    <div key={index} className="flex items-center space-x-2 mb-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        LinkedIn URL
+                      </label>
                       <input
-                        type="text"
-                        value={specialty}
-                        onChange={(e) => updateSpecialty(index, e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter specialty"
+                        type="url"
+                        value={formData.linkedin}
+                        onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://linkedin.com/in/username"
                       />
-                      {formData.specialties.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSpecialty(index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      )}
                     </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addSpecialty}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    + Add Specialty
-                  </button>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Facebook URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.facebook}
+                        onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://facebook.com/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Twitter URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.twitter}
+                        onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://twitter.com/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Instagram URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.instagram}
+                        onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://instagram.com/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        TikTok URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.tiktok}
+                        onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://tiktok.com/@username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Display Order
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.displayOrder}
+                        onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status
-                    </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as 'ACTIVE' | 'INACTIVE' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="ACTIVE">Active</option>
-                      <option value="INACTIVE">Inactive</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-center pt-6">
-                    <input
-                      type="checkbox"
-                      id="featured"
-                      checked={formData.featured}
-                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="featured" className="ml-2 block text-sm font-medium text-gray-700">
-                      Featured Member
-                    </label>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'ACTIVE' | 'INACTIVE' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
@@ -545,6 +573,15 @@ export default function AdminTeam() {
             </div>
           </div>
         )}
+
+        {/* Media Picker Modal */}
+        <MediaPicker
+          isOpen={showMediaPicker}
+          onClose={() => setShowMediaPicker(false)}
+          onSelect={handleMediaSelect}
+          acceptedTypes={['image']}
+          title="Select Team Member Photo"
+        />
       </div>
     </AdminDashboardLayout>
   );

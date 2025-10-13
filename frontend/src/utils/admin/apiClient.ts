@@ -237,9 +237,33 @@ class ApiClient {
     });
   }
 
-  // Team Members (placeholder)
+  // Team Members
   async getTeamMembers() {
-    return this.request<any[]>('/team');
+    return this.request<any[]>('/team/admin');
+  }
+
+  async getTeamMember(id: string) {
+    return this.request<any>(`/team/${id}`);
+  }
+
+  async createTeamMember(data: any) {
+    return this.request<any>('/team', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeamMember(id: string, data: any) {
+    return this.request<any>(`/team/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeamMember(id: string) {
+    return this.request<any>(`/team/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   // Testimonials (placeholder)
