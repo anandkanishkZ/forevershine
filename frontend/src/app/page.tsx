@@ -3,17 +3,14 @@
 import HeroSlider from '@/components/HeroSlider';
 import SectionTitle from '@/components/SectionTitle';
 import ServiceCard from '@/components/ServiceCard';
+import ServicesCarousel from '@/components/ServicesCarousel';
 import ProjectCard from '@/components/ProjectCard';
+import UniqueProjectsCarousel from '@/components/UniqueProjectsCarousel';
 import TestimonialCard from '@/components/TestimonialCard';
 import Button from '@/components/Button';
 import { useSetting } from '@/hooks/useSiteSettings';
 import {
-  Ruler,
-  Building2,
-  Calculator,
   MapPin,
-  Home as HomeIcon,
-  HardHat,
   CheckCircle,
   Phone,
   Mail,
@@ -28,49 +25,6 @@ export default function Home() {
   const companyEmail = useSetting('company_email', 'info@forevershine.com');
   const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
-
-  const services = [
-    {
-      title: 'Municipality Drawing & Design',
-      description:
-        'Professional architectural drawings and designs that comply with local municipality regulations and standards.',
-      icon: <Ruler size={28} />,
-      link: '/services/municipality-drawing',
-    },
-    {
-      title: 'Property Valuation',
-      description:
-        'Expert property valuation services for banking institutions, including hotel, residential, and commercial property assessments.',
-      icon: <HomeIcon size={28} />,
-      link: '/services/property-valuation',
-    },
-    {
-      title: 'Site Supervision & Verification',
-      description:
-        'Professional construction monitoring and running bill verification services for institutional lenders.',
-      icon: <HardHat size={28} />,
-      link: '/services/site-supervision',
-    }
-  ];
-
-  const projects = [
-    {
-      title: 'Modern Office Complex',
-      category: 'Commercial',
-      image:
-        'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      description:
-        'A state-of-the-art office complex featuring sustainable design elements and modern amenities.',
-    },
-    {
-      title: 'Luxury Residential Tower',
-      category: 'Residential',
-      image:
-        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      description:
-        'High-end residential tower with premium finishes and panoramic city views.',
-    }
-  ];
 
   const testimonials = [
     {
@@ -186,6 +140,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Services Carousel Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <SectionTitle
@@ -194,18 +149,17 @@ export default function Home() {
             center={true}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <ServiceCard
-                key={index}
-                {...service}
-              />
-            ))}
-          </div>
+          <ServicesCarousel 
+            showNavigation={true}
+            showPagination={true}
+            autoplay={true}
+            limit={6}
+            className="mt-12"
+          />
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <SectionTitle
             title="Our Projects"
@@ -213,14 +167,11 @@ export default function Home() {
             center={true}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={index}
-                {...project}
-              />
-            ))}
-          </div>
+          <UniqueProjectsCarousel
+            limit={8}
+            showFilters={true}
+            className="mt-8"
+          />
         </div>
       </section>
 
