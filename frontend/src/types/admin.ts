@@ -146,6 +146,13 @@ export interface User {
   id: string;
   email: string;
   role: string;
+  name?: string;
+  profilePhoto?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  loginCount?: number;
+  lastLoginDays?: number;
+  lastLoginAt?: string;
 }
 
 export interface AuthContextType {

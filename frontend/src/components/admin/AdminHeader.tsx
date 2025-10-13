@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Menu, Bell, User, Search, ExternalLink } from 'lucide-react';
+import { Menu, Search, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import NotificationDropdown from './NotificationDropdown';
+import ProfileDropdown from './ProfileDropdown';
 
 interface AdminHeaderProps {
   onMenuToggle: () => void;
@@ -55,28 +57,10 @@ export default function AdminHeader({ onMenuToggle, title }: AdminHeaderProps) {
           </Link>
 
           {/* Notifications */}
-          <button className="relative p-3 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 hover:scale-105 group">
-            <Bell className="h-5 w-5 group-hover:animate-pulse" />
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-xs font-bold text-white ring-2 ring-white">
-              3
-            </span>
-          </button>
+          <NotificationDropdown />
 
           {/* Profile */}
-          <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-                alt="Profile"
-                className="h-10 w-10 rounded-full ring-2 ring-gradient-to-r ring-offset-2 ring-offset-white ring-blue-500 hover:scale-105 transition-transform duration-300"
-              />
-              <span className="absolute -bottom-1 -right-1 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white"></span>
-            </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-slate-700">John Doe</p>
-              <p className="text-xs text-slate-500">Administrator</p>
-            </div>
-          </div>
+          <ProfileDropdown />
         </div>
       </div>
     </header>

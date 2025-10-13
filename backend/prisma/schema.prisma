@@ -9,12 +9,14 @@ datasource db {
 
 // User model for admin authentication
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  password  String
-  role      Role       @default(ADMIN)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  name         String?
+  email        String     @unique
+  password     String
+  profilePhoto String?
+  role         Role       @default(ADMIN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   
   blogPosts BlogPost[] // Relation to blog posts
 

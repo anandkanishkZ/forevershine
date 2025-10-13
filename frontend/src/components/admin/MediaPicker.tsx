@@ -56,8 +56,22 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
   const [activeTab, setActiveTab] = useState<'library' | 'upload'>('library');
   const [dragOver, setDragOver] = useState(false);
 
-  // Fetch media files
-  const fetchFiles = useCallback(async () => {
+  // Fetch categories - stable reference since it doesn't depend on props/state
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await apiClient.getMediaCategories();
+      if (response.success) {
+        setCategories(response.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  }, []);
+
+  // Fetch media files with stable dependencies
+  const fetchFiles = useCallback(async (forceRefresh = false) => {
+    if (!isOpen && !forceRefresh) return;
+    
     try {
       setLoading(true);
       const params: any = { limit: 50 };
@@ -80,10 +94,10 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
         );
         
         // Filter by search term
-        if (searchTerm) {
+        if (searchTerm.trim()) {
           filteredFiles = filteredFiles.filter(file =>
             file.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            file.filename.toLowerCase().includes(searchTerm.toLowerCase())
+            (file.filename && file.filename.toLowerCase().includes(searchTerm.toLowerCase()))
           );
         }
         
@@ -94,32 +108,26 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, selectedType, acceptedTypes, searchTerm]);
+  }, []); // Remove all dependencies to prevent infinite loop
 
-  // Fetch categories
-  const fetchCategories = useCallback(async () => {
-    try {
-      const response = await apiClient.getMediaCategories();
-      if (response.success) {
-        setCategories(response.data || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  }, []);
-
+  // Initial fetch when modal opens
   useEffect(() => {
     if (isOpen) {
-      fetchFiles();
       fetchCategories();
+      fetchFiles(true);
     }
-  }, [isOpen, fetchFiles, fetchCategories]);
+  }, [isOpen, fetchCategories]);
 
+  // Refetch when filters change (debounced)
   useEffect(() => {
-    if (isOpen) {
-      fetchFiles();
-    }
-  }, [searchTerm, selectedCategory, selectedType, fetchFiles]);
+    if (!isOpen) return;
+
+    const timeoutId = setTimeout(() => {
+      fetchFiles(true);
+    }, 300); // Debounce search and filter changes
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedCategory, selectedType]);
 
   // Handle file upload
   const handleFileUpload = async (uploadFiles: FileList) => {
@@ -163,7 +171,7 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
       
       if (response.success) {
         toast.success(`${response.data?.length || validFiles.length} file(s) uploaded successfully!`);
-        await fetchFiles();
+        await fetchFiles(true);
         setActiveTab('library');
       } else {
         throw new Error(response.message || 'Upload failed');

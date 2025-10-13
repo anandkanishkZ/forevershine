@@ -5,6 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
+  private requestQueue: Map<string, Promise<any>> = new Map();
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -30,6 +31,13 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
+    const requestKey = `${options.method || 'GET'}-${endpoint}`;
+    
+    // Prevent duplicate requests for the same endpoint
+    if (this.requestQueue.has(requestKey)) {
+      return this.requestQueue.get(requestKey);
+    }
+
     const url = `${this.baseUrl}${endpoint}`;
     
     const headers: Record<string, string> = {
@@ -45,23 +53,44 @@ class ApiClient {
       headers.Authorization = `Bearer ${this.token}`;
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
+    const requestPromise = (async (): Promise<ApiResponse<T>> => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-      const data = await response.json();
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal,
+        });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'An error occurred');
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error: any) {
+        console.error('API request failed:', error);
+        
+        if (error.name === 'AbortError') {
+          throw new Error('Request timeout');
+        }
+        
+        throw error;
+      } finally {
+        // Clean up the request from queue after completion
+        setTimeout(() => {
+          this.requestQueue.delete(requestKey);
+        }, 100);
       }
+    })();
 
-      return data;
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
-    }
+    this.requestQueue.set(requestKey, requestPromise);
+    return requestPromise;
   }
 
   // Authentication
@@ -73,7 +102,7 @@ class ApiClient {
   }
 
   async getCurrentUser() {
-    return this.request<any>('/auth/me');
+    return this.request<any>('/profile/me');
   }
 
   // Services
@@ -337,6 +366,58 @@ class ApiClient {
   async initializeDefaultSettings() {
     return this.request<any>('/settings/initialize', {
       method: 'POST',
+    });
+  }
+
+  // Profile Management
+
+  async updateProfile(data: { name: string; email: string; profilePhoto?: string }) {
+    return this.request<any>('/profile/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(data: { currentPassword: string; newPassword: string; confirmPassword: string }) {
+    return this.request<any>('/profile/change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Notifications Management
+  async getNotifications(params?: { page?: number; limit?: number; unread?: boolean }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.unread !== undefined) searchParams.append('unread', params.unread.toString());
+    
+    const query = searchParams.toString();
+    return this.request<any[]>(`/notifications${query ? `?${query}` : ''}`);
+  }
+
+  async markNotificationAsRead(id: string) {
+    return this.request<any>(`/notifications/${id}/read`, {
+      method: 'PATCH',
+    });
+  }
+
+  async markAllNotificationsAsRead() {
+    return this.request<any>('/notifications/mark-all-read', {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteNotification(id: string) {
+    return this.request<any>(`/notifications/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async createNotification(data: { title: string; message: string; type?: string; actionUrl?: string; actionLabel?: string }) {
+    return this.request<any>('/notifications', {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 }

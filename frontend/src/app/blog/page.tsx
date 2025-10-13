@@ -21,12 +21,17 @@ export const metadata: Metadata = {
 };
 
 async function getBlogPosts(): Promise<{ featured: BlogPost | null; regular: BlogPost[] }> {
+  // During build time, return empty data to prevent errors
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_RUNTIME) {
+    return { featured: null, regular: [] };
+  }
+
   try {
     const blogApi = new BlogApiClient();
     const response = await blogApi.getPublishedPosts({ limit: 20 });
     
     if (response.success) {
-      const posts = response.data;
+      const posts = response.data || [];
       const featuredPost = posts.find(post => post.featured) || null;
       const regularPosts = posts.filter(post => !post.featured);
       
@@ -40,6 +45,9 @@ async function getBlogPosts(): Promise<{ featured: BlogPost | null; regular: Blo
     return { featured: null, regular: [] };
   }
 }
+
+// Force dynamic rendering for this page to handle API calls properly
+export const dynamic = 'force-dynamic';
 
 export default async function BlogPage() {
   const { featured, regular } = await getBlogPosts();

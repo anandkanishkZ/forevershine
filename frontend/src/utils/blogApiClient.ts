@@ -47,43 +47,61 @@ class BlogApiClient {
     limit?: number;
     search?: string;
   }): Promise<BlogPostsResponse> {
-    const searchParams = new URLSearchParams();
-    
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.search) searchParams.append('search', params.search);
+    try {
+      const searchParams = new URLSearchParams();
+      
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.limit) searchParams.append('limit', params.limit.toString());
+      if (params?.search) searchParams.append('search', params.search);
 
-    const url = `${this.baseUrl}/public${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store' // Ensure fresh data
-    });
+      const url = `${this.baseUrl}/public${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store', // Ensure fresh data
+        next: { revalidate: 0 } // Disable caching in Next.js
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching published posts:', error);
+      // Return empty data instead of throwing during build
+      return {
+        success: false,
+        message: 'Failed to fetch blog posts',
+        data: []
+      };
     }
-
-    return await response.json();
   }
 
   async getPostBySlug(slug: string): Promise<BlogPostResponse> {
-    const response = await fetch(`${this.baseUrl}/public/${slug}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store' // Ensure fresh data
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/public/${slug}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store', // Ensure fresh data
+        next: { revalidate: 0 } // Disable caching in Next.js
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching blog post by slug:', error);
+      // Return error response instead of throwing during build
+      throw error; // Re-throw for proper error handling in components
     }
-
-    return await response.json();
   }
 
   // Helper method to format date

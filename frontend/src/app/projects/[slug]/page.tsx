@@ -12,6 +12,14 @@ interface ProjectDetailPageProps {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
+  // During build time, return default metadata to prevent errors
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_RUNTIME) {
+    return {
+      title: `${params.slug.replace(/-/g, ' ')} | Forever Shine Engineering`,
+      description: 'Engineering project details and specifications.',
+    };
+  }
+
   try {
     // Fetch project data for metadata
     const response = await publicApiClient.getProjects({ limit: 100 });
@@ -79,5 +87,8 @@ export async function generateMetadata({ params }: ProjectDetailPageProps): Prom
 const ProjectDetailPage = ({ params }: ProjectDetailPageProps) => {
   return <ProjectDetailClient slug={params.slug} />;
 };
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 
 export default ProjectDetailPage;

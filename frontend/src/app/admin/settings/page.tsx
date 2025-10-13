@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
+import ProfileSettings from '@/components/admin/ProfileSettings';
 import apiClient from '@/utils/admin/apiClient';
 
 import LoadingSpinner from '@/components/admin/LoadingSpinner';
@@ -27,7 +28,8 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  Image as ImageIcon
+  Image as ImageIcon,
+  User
 } from 'lucide-react';
 
 interface SettingValue {
@@ -46,7 +48,7 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [initializing, setInitializing] = useState(false);
-  const [activeTab, setActiveTab] = useState('company');
+  const [activeTab, setActiveTab] = useState('profile');
   const [showPasswords, setShowPasswords] = useState<{ [key: string]: boolean }>({});
   
   // Media Picker state
@@ -54,6 +56,12 @@ export default function AdminSettings() {
   const [currentImageField, setCurrentImageField] = useState<string>('');
 
   const settingCategories = {
+    profile: {
+      label: 'My Profile',
+      icon: User,
+      description: 'Your personal account settings and security',
+      settings: []
+    },
     company: {
       label: 'Company Info',
       icon: Building2,
@@ -583,6 +591,22 @@ export default function AdminSettings() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               {Object.entries(settingCategories).map(([key, category]) => {
                 if (activeTab !== key) return null;
+
+                // Special handling for profile tab
+                if (key === 'profile') {
+                  return (
+                    <div key={key}>
+                      <div className="border-b border-gray-200 pb-4 mb-6">
+                        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                          <category.icon className="mr-3 h-5 w-5 text-brand-blue" />
+                          {category.label}
+                        </h2>
+                        <p className="text-gray-600 mt-1">{category.description}</p>
+                      </div>
+                      <ProfileSettings />
+                    </div>
+                  );
+                }
 
                 return (
                   <div key={key}>

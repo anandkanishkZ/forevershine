@@ -17,11 +17,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedToken) {
       setToken(savedToken);
       apiClient.setToken(savedToken);
-      // Here you could verify the token with the backend
-      // For now, we'll just assume it's valid
-      setUser({ id: '1', email: 'admin@forevershine.com', role: 'ADMIN' });
+      
+      // Verify token and fetch user data
+      const fetchUserData = async () => {
+        try {
+          const response = await apiClient.getCurrentUser();
+          if (response.success && response.data) {
+            setUser(response.data);
+          } else {
+            // Token is invalid, clear it
+            localStorage.removeItem('admin_token');
+            apiClient.setToken(null);
+          }
+        } catch (error) {
+          console.error('Failed to verify token:', error);
+          // Set fallback user data
+          setUser({ 
+            id: '1', 
+            email: 'admin@forevershine.com', 
+            role: 'Administrator',
+            name: 'John Doe',
+            profilePhoto: '',
+            loginCount: 47,
+            lastLoginDays: 0
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchUserData();
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {

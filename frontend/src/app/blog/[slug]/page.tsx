@@ -13,6 +13,11 @@ interface BlogPostPageProps {
 }
 
 async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  // During build time, return null to prevent errors
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_RUNTIME) {
+    return null;
+  }
+
   try {
     const blogApi = new BlogApiClient();
     const response = await blogApi.getPostBySlug(slug);
@@ -172,3 +177,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   );
 }
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
