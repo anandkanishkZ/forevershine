@@ -200,8 +200,10 @@ router.post('/', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req: 
       imageUrl,
       status,
       publishedAt,
+      featured,
       seoTitle,
-      seoDescription
+      seoDescription,
+      metaKeywords
     } = req.body;
 
     if (!title || !content) {
@@ -239,8 +241,10 @@ router.post('/', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req: 
       imageUrl,
       status: status || 'DRAFT',
       authorId: req.user!.id,
+      featured: featured || false,
       seoTitle,
-      seoDescription
+      seoDescription,
+      metaKeywords
     };
 
     // Set publishedAt if status is PUBLISHED
@@ -283,8 +287,10 @@ router.put('/:id', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req
       imageUrl,
       status,
       publishedAt,
+      featured,
       seoTitle,
-      seoDescription
+      seoDescription,
+      metaKeywords
     } = req.body;
 
     const existingPost = await prisma.blogPost.findUnique({
@@ -323,8 +329,10 @@ router.put('/:id', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req
     if (excerpt !== undefined) updateData.excerpt = excerpt;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (status !== undefined) updateData.status = status;
+    if (featured !== undefined) updateData.featured = featured;
     if (seoTitle !== undefined) updateData.seoTitle = seoTitle;
     if (seoDescription !== undefined) updateData.seoDescription = seoDescription;
+    if (metaKeywords !== undefined) updateData.metaKeywords = metaKeywords;
 
     // Handle publishedAt
     if (status === 'PUBLISHED' && !existingPost.publishedAt) {

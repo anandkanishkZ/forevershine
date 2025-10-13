@@ -93,8 +93,10 @@ model BlogPost {
   imageUrl       String?
   status         PublishStatus  @default(DRAFT)
   publishedAt    DateTime?
+  featured       Boolean        @default(false)
   seoTitle       String?
   seoDescription String?
+  metaKeywords   String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   

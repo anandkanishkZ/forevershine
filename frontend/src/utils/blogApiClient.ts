@@ -11,8 +11,10 @@ export interface BlogPost {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
+  metaKeywords?: string;
   author: {
     id: string;
     email: string;
