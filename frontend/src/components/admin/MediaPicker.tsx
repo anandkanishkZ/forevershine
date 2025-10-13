@@ -14,10 +14,14 @@ import {
   Download,
   Filter,
   FolderOpen,
-  Plus
+  Plus,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import apiClient from '@/utils/admin/apiClient';
 import { MediaFile } from '@/types/admin';
+import { toast } from '@/utils/toast';
+import { getValidImageUrl, formatFileSize, isValidImageFile, isValidFileSize } from '@/utils/media';
 
 interface MediaPickerProps {
   isOpen: boolean;
@@ -124,15 +128,49 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
     try {
       setUploading(true);
       const category = selectedCategory === 'all' ? 'general' : selectedCategory;
-      const response = await apiClient.uploadMedia(uploadFiles, category);
+      
+      // Validate files before upload
+      const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
+      
+      for (let i = 0; i < uploadFiles.length; i++) {
+        const file = uploadFiles[i];
+        
+        if (!isValidFileSize(file, 10)) {
+          invalidFiles.push(`${file.name} (file too large)`);
+        } else if (!isValidImageFile(file)) {
+          invalidFiles.push(`${file.name} (unsupported file type)`);
+        } else {
+          validFiles.push(file);
+        }
+      }
+      
+      if (invalidFiles.length > 0) {
+        toast.warning(`Some files were skipped: ${invalidFiles.join(', ')}`);
+      }
+      
+      if (validFiles.length === 0) {
+        toast.error('No valid files to upload');
+        return;
+      }
+      
+      // Create FileList from valid files
+      const dt = new DataTransfer();
+      validFiles.forEach(file => dt.items.add(file));
+      const fileList = dt.files;
+      
+      const response = await apiClient.uploadMedia(fileList, category);
       
       if (response.success) {
+        toast.success(`${response.data?.length || validFiles.length} file(s) uploaded successfully!`);
         await fetchFiles();
         setActiveTab('library');
+      } else {
+        throw new Error(response.message || 'Upload failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      toast.error(`Upload failed: ${error.message || 'Please try again'}`);
     } finally {
       setUploading(false);
     }
@@ -182,13 +220,45 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
     }
   };
 
-  // Format file size
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  // Format file size (use utility function)
+  // Moved to utils/media.ts
+
+  // Safe image component with error handling
+  const SafeImage = ({ src, alt, className, fallbackSrc }: {
+    src: string;
+    alt: string;
+    className: string;
+    fallbackSrc?: string;
+  }) => {
+    const [imgSrc, setImgSrc] = useState(src);
+    const [hasError, setHasError] = useState(false);
+
+    const handleError = () => {
+      if (!hasError && fallbackSrc && imgSrc !== fallbackSrc) {
+        setImgSrc(fallbackSrc);
+        setHasError(true);
+      } else {
+        setHasError(true);
+      }
+    };
+
+    if (hasError && (!fallbackSrc || imgSrc === fallbackSrc)) {
+      return (
+        <div className={`${className} flex items-center justify-center bg-gray-100`}>
+          <File className="w-8 h-8 text-gray-400" />
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={imgSrc}
+        alt={alt}
+        className={className}
+        onError={handleError}
+        loading="lazy"
+      />
+    );
   };
 
   if (!isOpen) return null;
@@ -326,10 +396,11 @@ const MediaPicker: React.FC<MediaPickerProps> = ({
                       >
                         <div className="aspect-square p-2">
                           {file.type === 'image' ? (
-                            <img
-                              src={file.thumbnailUrl || file.url}
+                            <SafeImage
+                              src={getValidImageUrl(file.thumbnailUrl || file.url)}
                               alt={file.originalName}
                               className="w-full h-full object-cover rounded"
+                              fallbackSrc={getValidImageUrl(file.url)}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded">

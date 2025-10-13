@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
 import apiClient from '@/utils/admin/apiClient';
 import { BlogPost } from '@/types/admin';
+import { getValidImageUrl } from '@/utils/media';
 import {
   Plus,
   Search,
@@ -223,7 +224,7 @@ export default function AdminBlog() {
                   <div className="flex items-start space-x-4">
                     {post.imageUrl && (
                       <img
-                        src={post.imageUrl}
+                        src={getValidImageUrl(post.imageUrl)}
                         alt={post.title}
                         className="w-24 h-16 object-cover rounded"
                       />

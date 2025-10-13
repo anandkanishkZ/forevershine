@@ -275,10 +275,6 @@ class ApiClient {
     return this.request<any[]>('/media/upload', {
       method: 'POST',
       body: formData,
-      headers: {
-        // Don't set Content-Type, let browser set it with boundary for FormData
-        ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
-      },
     });
   }
 

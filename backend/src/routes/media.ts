@@ -83,7 +83,7 @@ const getFileInfo = async (filePath: string, category: string): Promise<MediaFil
       filename,
       originalName: filename.split('-').slice(1).join('-') || filename,
       category,
-      url: `${baseUrl}/uploads/${category}/${filename}`,
+      url: `${baseUrl}/api/media/serve/${category}/${filename}`,
       fullPath: filePath,
       size: stats.size,
       type: isImage ? 'image' : 'document',
@@ -116,7 +116,7 @@ const getFileInfo = async (filePath: string, category: string): Promise<MediaFil
             .toFile(thumbPath);
         }
         
-        fileInfo.thumbnailUrl = `${baseUrl}/uploads/${category}/thumbs/${thumbFilename}`;
+        fileInfo.thumbnailUrl = `${baseUrl}/api/media/serve/${category}/${thumbFilename}?thumb=true`;
       } catch (error) {
         console.error('Error processing image:', error);
       }
@@ -159,7 +159,12 @@ router.get('/categories', authenticate, async (req: AuthRequest, res: Response<A
     }
     
     const categories = fs.readdirSync(uploadsDir)
-      .filter(item => fs.statSync(path.join(uploadsDir, item)).isDirectory());
+      .filter(item => {
+        const itemPath = path.join(uploadsDir, item);
+        return fs.statSync(itemPath).isDirectory() && 
+               item !== 'thumbs' && 
+               !item.startsWith('.');
+      });
     
     res.json({ 
       success: true, 
@@ -204,7 +209,10 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response<ApiResponse
 
       const files = fs.readdirSync(categoryPath).filter(file => {
         const filePath = path.join(categoryPath, file);
-        return fs.statSync(filePath).isFile() && file !== '.gitkeep';
+        return fs.statSync(filePath).isFile() && 
+               file !== '.gitkeep' && 
+               !file.startsWith('.') &&
+               path.dirname(filePath) !== path.join(categoryPath, 'thumbs');
       });
 
       for (const file of files) {
@@ -359,6 +367,90 @@ router.get('/categories', authenticate, (req: AuthRequest, res: Response<ApiResp
       message: 'Failed to retrieve categories',
       errors: ['Internal server error']
     });
+  }
+});
+
+// Serve image files through API with optional authentication
+router.get('/serve/:category/:filename', async (req: Request, res: Response) => {
+  try {
+    const { category, filename } = req.params;
+    const { thumb } = req.query;
+    
+    // Optional authentication check - allows both authenticated and unauthenticated access
+    // This allows images to be displayed in browser img tags while still providing security options
+    
+    // Construct file path
+    let filePath: string;
+    if (thumb === 'true') {
+      filePath = path.join(__dirname, '../../uploads', category, 'thumbs', filename);
+    } else {
+      filePath = path.join(__dirname, '../../uploads', category, filename);
+    }
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'File not found',
+        errors: ['The requested file does not exist']
+      });
+    }
+    
+    // Security: Prevent directory traversal
+    const normalizedPath = path.normalize(filePath);
+    const uploadsDir = path.normalize(path.join(__dirname, '../../uploads'));
+    if (!normalizedPath.startsWith(uploadsDir)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied',
+        errors: ['Invalid file path']
+      });
+    }
+    
+    // Get file stats
+    const stats = fs.statSync(filePath);
+    const ext = path.extname(filename).toLowerCase();
+    const mimeType = getMimeType(ext);
+    
+    // Set appropriate headers
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    res.setHeader('ETag', `"${stats.mtime.getTime()}-${stats.size}"`);
+    res.setHeader('X-Served-By', 'Media API'); // Custom header to identify API serving
+    
+    // Check if client has cached version
+    const ifNoneMatch = req.headers['if-none-match'];
+    const etag = `"${stats.mtime.getTime()}-${stats.size}"`;
+    
+    if (ifNoneMatch === etag) {
+      return res.status(304).end();
+    }
+    
+    // Create read stream and pipe to response
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+    
+    fileStream.on('error', (error) => {
+      console.error('Error streaming file:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Error serving file',
+          errors: ['Internal server error']
+        });
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error serving media file:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to serve file',
+        errors: ['Internal server error']
+      });
+    }
   }
 });
 

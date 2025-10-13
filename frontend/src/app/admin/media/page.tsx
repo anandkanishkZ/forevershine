@@ -23,6 +23,8 @@ import {
   HardDrive
 } from 'lucide-react';
 import apiClient from '@/utils/admin/apiClient';
+import { toast } from '@/utils/toast';
+import { getValidImageUrl, formatFileSize, isValidImageFile, isValidFileSize } from '@/utils/media';
 
 interface MediaFile {
   id: string;
@@ -217,15 +219,49 @@ export default function MediaGallery() {
     try {
       setUploading(true);
       const category = selectedCategory === 'all' ? 'general' : selectedCategory;
-      const response = await apiClient.uploadMedia(uploadFiles, category);
+      
+      // Validate files
+      const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
+      
+      for (let i = 0; i < uploadFiles.length; i++) {
+        const file = uploadFiles[i];
+        
+        if (!isValidFileSize(file, 10)) {
+          invalidFiles.push(`${file.name} (file too large)`);
+        } else if (!isValidImageFile(file)) {
+          invalidFiles.push(`${file.name} (unsupported file type)`);
+        } else {
+          validFiles.push(file);
+        }
+      }
+      
+      if (invalidFiles.length > 0) {
+        toast.warning(`Some files were skipped: ${invalidFiles.join(', ')}`);
+      }
+      
+      if (validFiles.length === 0) {
+        toast.error('No valid files to upload');
+        return;
+      }
+      
+      // Create FileList from valid files  
+      const dt = new DataTransfer();
+      validFiles.forEach(file => dt.items.add(file));
+      const fileList = dt.files;
+      
+      const response = await apiClient.uploadMedia(fileList, category);
       
       if (response.success) {
+        toast.success(`${response.data?.length || validFiles.length} file(s) uploaded successfully!`);
         await fetchFiles();
-        alert(`${response.data?.length || 0} file(s) uploaded successfully!`);
+        setShowUploadModal(false);
+      } else {
+        throw new Error(response.message || 'Upload failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      toast.error(`Upload failed: ${error.message || 'Please try again'}`);
     } finally {
       setUploading(false);
     }
@@ -236,13 +272,17 @@ export default function MediaGallery() {
   // Handle file deletion
   const handleDeleteFile = async (file: MediaFile) => {
     try {
-      await apiClient.deleteMedia(file.category, file.filename);
-      await fetchFiles();
+      const response = await apiClient.deleteMedia(file.category, file.filename);
+      if (response.success) {
+        toast.success('File deleted successfully');
+        await fetchFiles();
+      } else {
+        throw new Error(response.message || 'Delete failed');
+      }
       setShowDeleteConfirm(null);
-      // Optionally show a custom toast here, or just update silently
-    } catch (error) {
+    } catch (error: any) {
       console.error('Delete failed:', error);
-      // Optionally show a custom toast here, or just update silently
+      toast.error(`Delete failed: ${error.message || 'Please try again'}`);
     }
   };
 
@@ -482,10 +522,10 @@ export default function MediaGallery() {
                   <div className="aspect-square p-2">
                     {file.type === 'image' ? (
                       <SafeImage
-                        src={file.thumbnailUrl || file.url}
+                        src={getValidImageUrl(file.thumbnailUrl || file.url)}
                         alt={file.originalName}
                         className="w-full h-full object-cover rounded"
-                        fallbackSrc={file.url}
+                        fallbackSrc={getValidImageUrl(file.url)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded">
@@ -533,10 +573,10 @@ export default function MediaGallery() {
                     <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
                       {file.type === 'image' ? (
                         <SafeImage
-                          src={file.thumbnailUrl || file.url}
+                          src={getValidImageUrl(file.thumbnailUrl || file.url)}
                           alt={file.originalName}
                           className="w-full h-full object-cover"
-                          fallbackSrc={file.url}
+                          fallbackSrc={getValidImageUrl(file.url)}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100">

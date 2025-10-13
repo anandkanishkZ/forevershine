@@ -46,7 +46,11 @@ router.post('/image', upload.single('image'), (req: Request, res: Response<ApiRe
       });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    // Generate API-based URL instead of static file URL
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.PRODUCTION_URL || 'https://your-domain.com'
+      : 'http://localhost:5000';
+    const fileUrl = `${baseUrl}/api/media/serve/general/${req.file.filename}`;
 
     res.json({
       success: true,

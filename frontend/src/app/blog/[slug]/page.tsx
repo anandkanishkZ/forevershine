@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Metadata } from 'next';
 import BlogApiClient, { BlogPost } from '@/utils/blogApiClient';
 import SocialShareButtons from '@/components/SocialShareButtons';
+import { getValidImageUrl } from '@/utils/media';
 
 interface BlogPostPageProps {
   params: { slug: string };
@@ -53,13 +54,13 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       description: post.excerpt || BlogApiClient.getExcerpt(post.content),
       type: 'article',
       publishedTime: post.publishedAt,
-      images: post.imageUrl ? [post.imageUrl] : undefined,
+      images: post.imageUrl ? [getValidImageUrl(post.imageUrl)] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt || BlogApiClient.getExcerpt(post.content),
-      images: post.imageUrl ? [post.imageUrl] : undefined,
+      images: post.imageUrl ? [getValidImageUrl(post.imageUrl)] : undefined,
     }
   };
 }
@@ -117,7 +118,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {post.imageUrl && (
               <div className="mb-12">
                 <Image 
-                  src={post.imageUrl} 
+                  src={getValidImageUrl(post.imageUrl)} 
                   alt={post.title}
                   className="w-full h-96 object-cover rounded-lg shadow-lg"
                   width={1200}
