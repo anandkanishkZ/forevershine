@@ -5,6 +5,9 @@ import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
 import apiClient from '@/utils/admin/apiClient';
 
 import LoadingSpinner from '@/components/admin/LoadingSpinner';
+import MediaPicker from '@/components/admin/MediaPicker';
+import Image from 'next/image';
+import { toast } from 'react-toastify';
 import {
   Settings,
   Building2,
@@ -23,7 +26,8 @@ import {
   Info,
   ExternalLink,
   Eye,
-  EyeOff
+  EyeOff,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface SettingValue {
@@ -43,8 +47,11 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [initializing, setInitializing] = useState(false);
   const [activeTab, setActiveTab] = useState('company');
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [showPasswords, setShowPasswords] = useState<{ [key: string]: boolean }>({});
+  
+  // Media Picker state
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [currentImageField, setCurrentImageField] = useState<string>('');
 
   const settingCategories = {
     company: {
@@ -74,14 +81,19 @@ export default function AdminSettings() {
       ]
     },
     seo: {
-      label: 'SEO Settings',
+      label: 'SEO & Branding',
       icon: Search,
-      description: 'Search engine optimization configuration',
+      description: 'Search engine optimization and branding assets',
       settings: [
         'seo_meta_title',
         'seo_meta_description',
         'seo_keywords',
-        'seo_og_image'
+        'seo_og_image',
+        'seo_google_image',
+        'seo_twitter_card_image',
+        'site_favicon',
+        'site_logo',
+        'site_logo_dark'
       ]
     },
     features: {
@@ -135,11 +147,11 @@ export default function AdminSettings() {
       if (response.success) {
         setSettings(response.data);
       } else {
-        setToast({ message: 'Failed to load settings', type: 'error' });
+        toast.error('Failed to load settings');
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
-      setToast({ message: 'Failed to load settings', type: 'error' });
+      toast.error('Failed to load settings');
     } finally {
       setLoading(false);
     }
@@ -150,13 +162,13 @@ export default function AdminSettings() {
       setSaving(true);
       const response = await apiClient.updateSettings(settings);
       if (response.success) {
-        setToast({ message: 'Settings saved successfully', type: 'success' });
+        toast.success('Settings saved successfully');
       } else {
-        setToast({ message: 'Failed to save settings', type: 'error' });
+        toast.error('Failed to save settings');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      setToast({ message: 'Failed to save settings', type: 'error' });
+      toast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -168,13 +180,13 @@ export default function AdminSettings() {
       const response = await apiClient.initializeDefaultSettings();
       if (response.success) {
         await fetchSettings();
-        setToast({ message: 'Default settings initialized successfully', type: 'success' });
+        toast.success('Default settings initialized successfully');
       } else {
-        setToast({ message: 'Failed to initialize settings', type: 'error' });
+        toast.error('Failed to initialize settings');
       }
     } catch (error) {
       console.error('Error initializing settings:', error);
-      setToast({ message: 'Failed to initialize settings', type: 'error' });
+      toast.error('Failed to initialize settings');
     } finally {
       setInitializing(false);
     }
@@ -190,6 +202,26 @@ export default function AdminSettings() {
     }));
   };
 
+  // Media Picker handlers
+  const openMediaPicker = (fieldKey: string) => {
+    setCurrentImageField(fieldKey);
+    setMediaPickerOpen(true);
+  };
+
+  const handleMediaSelect = (file: any) => {
+    if (file && currentImageField) {
+      updateSetting(currentImageField, file.url);
+      setMediaPickerOpen(false);
+      setCurrentImageField('');
+    }
+  };
+
+  // Check if field is an image field
+  const isImageField = (key: string) => {
+    const imageFields = ['seo_og_image', 'seo_google_image', 'seo_twitter_card_image', 'site_favicon', 'site_logo', 'site_logo_dark'];
+    return imageFields.includes(key);
+  };
+
   const getSettingValue = (key: string) => {
     return settings[key]?.value || '';
   };
@@ -203,6 +235,27 @@ export default function AdminSettings() {
   };
 
   const formatSettingLabel = (key: string) => {
+    // Custom labels for specific fields
+    const customLabels: { [key: string]: string } = {
+      'seo_google_image': 'Google Search Image',
+      'seo_twitter_card_image': 'Twitter Card Image', 
+      'site_favicon': 'Website Favicon',
+      'site_logo': 'Site Logo (Light Mode)',
+      'site_logo_dark': 'Site Logo (Dark Mode)',
+      'seo_og_image': 'Open Graph Image',
+      'seo_meta_title': 'Default Page Title',
+      'seo_meta_description': 'Default Meta Description',
+      'seo_keywords': 'SEO Keywords',
+      'company_tagline': 'Company Tagline/Slogan',
+      'google_analytics_id': 'Google Analytics ID',
+      'google_tag_manager_id': 'Google Tag Manager ID',
+      'facebook_pixel_id': 'Facebook Pixel ID'
+    };
+
+    if (customLabels[key]) {
+      return customLabels[key];
+    }
+
     return key
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -294,6 +347,59 @@ export default function AdminSettings() {
       default: // TEXT
         const isPassword = key.toLowerCase().includes('password') || key.toLowerCase().includes('secret') || key.toLowerCase().includes('key');
         const isUrl = key.toLowerCase().includes('url') || key.toLowerCase().includes('website');
+        const isImage = isImageField(key);
+        
+        if (isImage) {
+          return (
+            <div className="space-y-2">
+              <label htmlFor={key} className="block text-sm font-medium text-gray-700">
+                {formatSettingLabel(key)}
+              </label>
+              
+              {/* Image Preview */}
+              {value && (
+                <div className="mb-3">
+                  <div className="relative inline-block bg-gray-50 rounded-lg p-2 border">
+                    <Image
+                      src={value}
+                      alt={formatSettingLabel(key)}
+                      width={120}
+                      height={60}
+                      className="object-contain rounded"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* URL Input with Media Picker Button */}
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  id={key}
+                  value={value || ''}
+                  onChange={(e) => updateSetting(key, e.target.value)}
+                  placeholder="Enter image URL or use media picker"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => openMediaPicker(key)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span>Browse</span>
+                </button>
+              </div>
+              
+              {description && (
+                <p className="text-xs text-gray-500">{description}</p>
+              )}
+            </div>
+          );
+        }
         
         return (
           <div className="space-y-2">
@@ -542,27 +648,18 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* Toast Notifications */}
-      {toast && (
-        <div className="fixed top-4 right-4 z-50">
-          <div className={`px-4 py-3 rounded-lg shadow-lg flex items-center space-x-3 ${
-            toast.type === 'success' ? 'bg-green-100 border border-green-300 text-green-800' :
-            toast.type === 'error' ? 'bg-red-100 border border-red-300 text-red-800' :
-            'bg-blue-100 border border-blue-300 text-blue-800'
-          }`}>
-            {toast.type === 'success' && <CheckCircle className="h-5 w-5" />}
-            {toast.type === 'error' && <AlertCircle className="h-5 w-5" />}
-            {toast.type === 'info' && <Info className="h-5 w-5" />}
-            <span className="font-medium">{toast.message}</span>
-            <button
-              onClick={() => setToast(null)}
-              className="ml-3 text-gray-500 hover:text-gray-700"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Media Picker Modal */}
+      <MediaPicker
+        isOpen={mediaPickerOpen}
+        onClose={() => {
+          setMediaPickerOpen(false);
+          setCurrentImageField('');
+        }}
+        onSelect={handleMediaSelect}
+        multiple={false}
+        acceptedTypes={['image']}
+        title="Select Image"
+      />
     </AdminDashboardLayout>
   );
 }

@@ -2,17 +2,17 @@ import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
 import ConditionalLayout from '@/components/ConditionalLayout';
+import { SiteSettingsProvider } from '@/hooks/useSiteSettings';
+import { generateDynamicMetadata } from '@/utils/dynamicMetadata';
 
 const poppins = Poppins({ 
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900']
 });
 
-export const metadata: Metadata = {
-  title: 'Forever Shine Engineering - Professional Engineering & Construction Services',
-  description: 'Forever Shine Engineering provides professional engineering consultancy and construction services for residential and commercial projects. Expert solutions in municipality drawing, interior design, and more.',
-  keywords: 'engineering consultancy, construction services, municipality drawing, interior design, civil engineering, property valuation',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return await generateDynamicMetadata();
+}
 
 export default function RootLayout({
   children,
@@ -22,9 +22,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <SiteSettingsProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </SiteSettingsProvider>
       </body>
     </html>
   );

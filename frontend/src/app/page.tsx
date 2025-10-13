@@ -6,6 +6,7 @@ import ServiceCard from '@/components/ServiceCard';
 import ProjectCard from '@/components/ProjectCard';
 import TestimonialCard from '@/components/TestimonialCard';
 import Button from '@/components/Button';
+import { useSetting } from '@/hooks/useSiteSettings';
 import {
   Ruler,
   Building2,
@@ -20,6 +21,14 @@ import {
 import Image from 'next/image';
 
 export default function Home() {
+  // Dynamic content from settings
+  const companyName = useSetting('company_name', 'Forever Shine Engineering');
+  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
+  const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
+  const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
+
   const services = [
     {
       title: 'Municipality Drawing & Design',
@@ -87,17 +96,17 @@ export default function Home() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <span className="inline-block px-4 py-2 bg-brand-red/10 text-brand-red font-semibold text-sm rounded-full">
-                  ABOUT FOREVER SHINE ENGINEERING
+                  ABOUT {companyName.toUpperCase()}
                 </span>
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                  Nepal's Trusted{' '}
+                  {companyTagline}{' '}
                   <span className="text-brand-blue">Property Valuation</span>{' '}
                   & Engineering Consultancy
                 </h2>
                 <p className="text-gray-600 text-lg leading-relaxed">
-                  Forever Shine Engineering specializes in professional property valuation services 
+                  {companyDescription || `${companyName} specializes in professional property valuation services 
                   for banking institutions across Nepal. We provide comprehensive engineering consultancy, 
-                  site supervision, and running bill verification services to major banks and financial institutions.
+                  site supervision, and running bill verification services to major banks and financial institutions.`}
                 </p>
               </div>
 
@@ -259,7 +268,7 @@ export default function Home() {
                       Our Location
                     </h4>
                     <p className="text-gray-600">
-                      Birta Chowk, Rautahat, Madhesh Province
+                      {companyAddress}
                     </p>
                   </div>
                 </div>
@@ -272,7 +281,7 @@ export default function Home() {
                     <h4 className="font-semibold text-gray-900 mb-1">
                       Call Us
                     </h4>
-                    <p className="text-gray-600">+977 9805996059/ 9861053405</p>
+                    <p className="text-gray-600">{companyPhone}</p>
                   </div>
                 </div>
 
@@ -284,7 +293,7 @@ export default function Home() {
                     <h4 className="font-semibold text-gray-900 mb-1">
                       Email Us
                     </h4>
-                    <p className="text-gray-600">info@forevershine.com</p>
+                    <p className="text-gray-600">{companyEmail}</p>
                   </div>
                 </div>
               </div>

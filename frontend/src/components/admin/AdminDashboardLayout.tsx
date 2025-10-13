@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/admin/useAuth';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface AdminDashboardLayoutProps {
   children: React.ReactNode;
@@ -51,6 +53,20 @@ export default function AdminDashboardLayout({ children, title }: AdminDashboard
           </div>
         </main>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

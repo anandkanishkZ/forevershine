@@ -5,14 +5,20 @@ import { MapPin, Phone, Mail, Clock, MessageSquare } from 'lucide-react';
 import SectionTitle from '../../components/SectionTitle';
 import ContactForm from '../../components/ContactForm';
 import Image from 'next/image';
+import { useSetting } from '@/hooks/useSiteSettings';
 
 const Contact = () => {
+  // Dynamic content from settings
+  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
+  const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+
   const officeLocations = [
     {
       name: 'Main Office',
-      address: 'Birta Chowk, Rautahat, Madhesh Province',
-      phone: '+977 9805996059/ 9861053405',
-      email: 'info@forevershine.com',
+      address: companyAddress,
+      phone: companyPhone,
+      email: companyEmail,
       hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
       mapUrl:
         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3567.398367281529!2d85.27076231505767!3d26.76569598319099!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ec4b7e7e7e7e7f%3A0x7e7e7e7e7e7e7e7f!2sBirta%20Chowk%2C%20Rautahat%2C%20Nepal!5e0!3m2!1sen!2snp!4v1639321915921!5m2!1sen!2snp',
@@ -52,9 +58,7 @@ const Contact = () => {
                 <MapPin size={32} />
               </div>
               <h3 className="text-xl font-bold mb-4 text-gray-900">Our Location</h3>
-              <p className="text-gray-600 mb-2">Birta Chowk</p>
-              <p className="text-gray-600 mb-2">Rautahat, Madhesh Province</p>
-              <p className="text-gray-600">Nepal</p>
+              <p className="text-gray-600">{companyAddress}</p>
             </div>
 
             <div className="bg-gray-50 p-8 rounded-lg shadow-md">
@@ -62,8 +66,8 @@ const Contact = () => {
                 <Phone size={32} />
               </div>
               <h3 className="text-xl font-bold mb-4 text-gray-900">Phone & Email</h3>
-              <p className="text-gray-600 mb-2">Phone: +977 9805996059/ 9861053405</p>
-              <p className="text-gray-600">Email: info@forevershine.com</p>
+              <p className="text-gray-600 mb-2">Phone: {companyPhone}</p>
+              <p className="text-gray-600">Email: {companyEmail}</p>
             </div>
 
             <div className="bg-gray-50 p-8 rounded-lg shadow-md">

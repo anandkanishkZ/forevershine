@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
+import MaintenanceModeWrapper from '@/components/MaintenanceModeWrapper';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // Check if current route is an admin route
   const isAdminRoute = pathname?.startsWith('/admin');
   
-  // For admin routes, render only children without header/footer
+  // For admin routes, render only children without header/footer (bypass maintenance mode)
   if (isAdminRoute) {
     return (
       <div className="min-h-screen">
@@ -24,13 +25,15 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
   
-  // For regular routes, render with header and footer
+  // For regular routes, wrap with maintenance mode checker and render with header/footer
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow">{children}</main>
-      <Footer />
-      <BackToTop />
-    </div>
+    <MaintenanceModeWrapper>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+        <BackToTop />
+      </div>
+    </MaintenanceModeWrapper>
   );
 }

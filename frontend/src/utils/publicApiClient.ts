@@ -119,6 +119,34 @@ class PublicApiClient {
       throw error;
     }
   }
+
+  // Get public settings
+  async getPublicSettings(): Promise<ApiResponse<Record<string, any>>> {
+    try {
+      const response = await fetch(`${this.baseURL}/public/settings`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch public settings:', error);
+      throw error;
+    }
+  }
+
+  // Get specific public setting
+  async getPublicSetting(key: string): Promise<ApiResponse<{key: string, value: any}>> {
+    try {
+      const response = await fetch(`${this.baseURL}/public/settings/${key}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch public setting:', error);
+      throw error;
+    }
+  }
 }
 
 const publicApiClient = new PublicApiClient();

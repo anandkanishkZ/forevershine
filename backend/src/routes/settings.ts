@@ -232,6 +232,13 @@ router.post('/initialize', authenticate, authorize(['SUPER_ADMIN']), async (req:
       { key: 'google_analytics_id', value: '', type: SettingType.TEXT, description: 'Google Analytics tracking ID' },
       { key: 'google_tag_manager_id', value: '', type: SettingType.TEXT, description: 'Google Tag Manager container ID' },
       { key: 'facebook_pixel_id', value: '', type: SettingType.TEXT, description: 'Facebook Pixel ID' },
+      
+      // Enhanced SEO & Branding
+      { key: 'site_favicon', value: '/favicon.ico', type: SettingType.TEXT, description: 'Site favicon URL or path' },
+      { key: 'seo_google_image', value: '', type: SettingType.TEXT, description: 'Google Search appearance image URL' },
+      { key: 'seo_twitter_card_image', value: '', type: SettingType.TEXT, description: 'Twitter Card image URL' },
+      { key: 'site_logo', value: '', type: SettingType.TEXT, description: 'Main site logo URL' },
+      { key: 'site_logo_dark', value: '', type: SettingType.TEXT, description: 'Dark mode site logo URL' },
     ];
 
     const upsertPromises = defaultSettings.map(setting =>

@@ -1,9 +1,24 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { useSetting } from '@/hooks/useSiteSettings';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  
+  // Dynamic content from settings
+  const companyName = useSetting('company_name', 'Forever Shine Engineering');
+  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province, Nepal');
+  const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  
+  // Dynamic social media links
+  const facebookUrl = useSetting('social_facebook', '');
+  const twitterUrl = useSetting('social_twitter', '');
+  const linkedinUrl = useSetting('social_linkedin', '');
+  const instagramUrl = useSetting('social_instagram', '');
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -14,25 +29,33 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <h3 className="text-xl font-bold text-white mb-4">
-              Forever Shine Engineering
+              {companyName}
             </h3>
             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
               Professional engineering consultancy and construction services delivering excellence across Nepal.
             </p>
             {/* Social Links */}
             <div className="flex space-x-3">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
+              {facebookUrl && (
+                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {twitterUrl && (
+                <a href={twitterUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {instagramUrl && (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {linkedinUrl && (
+                <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -74,21 +97,15 @@ export default function Footer() {
             <div className="space-y-2 text-sm">
               <div className="flex items-center text-gray-400">
                 <Phone className="w-4 h-4 mr-2" />
-                <div>
-                  <p>+977 9805996059</p>
-                  <p>+977 9861053405</p>
-                </div>
+                <p>{companyPhone}</p>
               </div>
               <div className="flex items-center text-gray-400">
                 <Mail className="w-4 h-4 mr-2" />
-                <p>info@forevershine.com</p>
+                <p>{companyEmail}</p>
               </div>
               <div className="flex items-start text-gray-400">
                 <MapPin className="w-4 h-4 mr-2 mt-0.5" />
-                <div>
-                  <p>Birta Chowk, Rautahat</p>
-                  <p>Madhesh Province, Nepal</p>
-                </div>
+                <p>{companyAddress}</p>
               </div>
             </div>
           </div>
