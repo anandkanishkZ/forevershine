@@ -287,6 +287,34 @@ class ApiClient {
   async getMediaCategories() {
     return this.request<string[]>('/media/categories');
   }
+
+  // Settings
+  async getSettings() {
+    return this.request<any>('/settings');
+  }
+
+  async updateSettings(settings: any) {
+    return this.request<any>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ settings }),
+    });
+  }
+
+  async getSetting(key: string) {
+    return this.request<any>(`/settings/${key}`);
+  }
+
+  async deleteSetting(key: string) {
+    return this.request<any>(`/settings/${key}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async initializeDefaultSettings() {
+    return this.request<any>('/settings/initialize', {
+      method: 'POST',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
