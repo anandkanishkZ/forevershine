@@ -118,7 +118,9 @@ export default function AdminBlog() {
           ? formData.publishedAt 
           : undefined,
         seoTitle: formData.seoTitle || undefined,
-        seoDescription: formData.seoDescription || undefined
+        seoDescription: formData.seoDescription || undefined,
+        featured: formData.featured,
+        metaKeywords: formData.metaKeywords || undefined
       };
 
       if (editingPost) {
