@@ -182,8 +182,51 @@ export default function HeroSlider() {
 
   if (loading) {
     return (
-      <div className="relative h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="relative h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute bottom-20 left-40 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+
+        {/* Skeleton Content */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full relative z-10">
+          <div className="flex items-center h-full pt-16 sm:pt-20">
+            <div className="max-w-4xl w-full">
+              {/* Skeleton Title */}
+              <div className="space-y-4 animate-pulse">
+                <div className="h-8 sm:h-10 md:h-12 lg:h-16 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded-lg w-3/4 animate-shimmer"></div>
+                <div className="h-8 sm:h-10 md:h-12 lg:h-14 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 rounded-lg w-2/3 animate-shimmer animation-delay-200"></div>
+                
+                {/* Skeleton Description */}
+                <div className="hidden sm:block space-y-3 pt-4">
+                  <div className="h-4 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded w-full animate-shimmer animation-delay-300"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded w-5/6 animate-shimmer animation-delay-400"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded w-4/6 animate-shimmer animation-delay-500"></div>
+                </div>
+
+                {/* Skeleton Buttons */}
+                <div className="hidden sm:flex flex-col sm:flex-row gap-3 sm:gap-4 pt-8">
+                  <div className="h-12 sm:h-14 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 rounded-lg w-40 animate-shimmer animation-delay-600"></div>
+                  <div className="h-12 sm:h-14 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded-lg w-40 animate-shimmer animation-delay-700"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Navigation Dots */}
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20 animate-pulse">
+          <div className="w-8 h-3 bg-blue-500 rounded-full animate-shimmer"></div>
+          <div className="w-3 h-3 bg-gray-600 rounded-full animate-shimmer animation-delay-100"></div>
+          <div className="w-3 h-3 bg-gray-600 rounded-full animate-shimmer animation-delay-200"></div>
+        </div>
+
+        {/* Loading Text (Optional) */}
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20">
+          <p className="text-gray-400 text-sm animate-pulse">Loading hero slider...</p>
+        </div>
       </div>
     );
   }

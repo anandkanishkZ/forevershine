@@ -20,6 +20,7 @@ import {
   Share2,
   Shield,
   BarChart3,
+  TrendingUp,
   Save,
   RefreshCw,
   AlertCircle,
@@ -74,6 +75,19 @@ export default function AdminSettings() {
         'company_phone',
         'company_email',
         'company_website'
+      ]
+    },
+    statistics: {
+      label: 'Statistics',
+      icon: TrendingUp,
+      description: 'Company statistics and achievements displayed across the website',
+      settings: [
+        'stats_projects_completed',
+        'stats_years_experience',
+        'stats_team_members',
+        'stats_client_satisfaction',
+        'stats_properties_valued',
+        'stats_banking_partners'
       ]
     },
     social: {

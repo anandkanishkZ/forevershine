@@ -7,6 +7,7 @@ import { Metadata } from 'next';
 import SectionTitle from '@/components/SectionTitle';
 import Button from '@/components/Button';
 import publicApiClient, { Project } from '@/utils/publicApiClient';
+import { useSetting } from '@/hooks/useSiteSettings';
 import { 
   Search, 
   Star, 
@@ -31,6 +32,12 @@ const Projects = () => {
 
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Dynamic statistics from settings
+  const projectsCompleted = useSetting('stats_projects_completed', '100');
+  const yearsExperience = useSetting('stats_years_experience', '15');
+  const teamMembers = useSetting('stats_team_members', '50');
+  const clientSatisfaction = useSetting('stats_client_satisfaction', '98');
 
   // Available categories with icons
   const categories = [
@@ -245,19 +252,19 @@ const Projects = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">100+</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">{projectsCompleted}+</div>
               <div className="text-gray-600">Projects Completed</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">15+</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">{yearsExperience}+</div>
               <div className="text-gray-600">Years Experience</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">50+</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">{teamMembers}+</div>
               <div className="text-gray-600">Expert Engineers</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">98%</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-700 mb-2">{clientSatisfaction}%</div>
               <div className="text-gray-600">Client Satisfaction</div>
             </div>
           </div>

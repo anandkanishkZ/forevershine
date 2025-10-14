@@ -27,6 +27,10 @@ export default function Home() {
   const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
 
+  // Dynamic statistics from settings
+  const propertiesValued = useSetting('stats_properties_valued', '100');
+  const bankingPartners = useSetting('stats_banking_partners', '3');
+
   // State for testimonials
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
@@ -157,11 +161,11 @@ export default function Home() {
               <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 bg-white rounded-lg sm:rounded-xl shadow-xl p-4 sm:p-6 border">
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
                   <div>
-                    <div className="text-xl sm:text-2xl font-bold text-brand-red">100+</div>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-red">{propertiesValued}+</div>
                     <div className="text-[10px] sm:text-xs text-gray-600 whitespace-nowrap">Properties Valued</div>
                   </div>
                   <div>
-                    <div className="text-xl sm:text-2xl font-bold text-brand-blue">3+</div>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-blue">{bankingPartners}+</div>
                     <div className="text-[10px] sm:text-xs text-gray-600 whitespace-nowrap">Banking Partners</div>
                   </div>
                 </div>

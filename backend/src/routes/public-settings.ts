@@ -16,6 +16,7 @@ router.get('/', async (req: Request, res: Response<ApiResponse>) => {
       'company_phone',
       'company_email',
       'company_website',
+      'company_address',
       'social_facebook',
       'social_twitter',
       'social_linkedin',
@@ -31,7 +32,14 @@ router.get('/', async (req: Request, res: Response<ApiResponse>) => {
       'site_logo',
       'site_logo_dark',
       'business_hours',
-      'site_maintenance_mode'
+      'site_maintenance_mode',
+      // Statistics
+      'stats_projects_completed',
+      'stats_years_experience',
+      'stats_team_members',
+      'stats_client_satisfaction',
+      'stats_properties_valued',
+      'stats_banking_partners'
     ];
 
     const settings = await prisma.companySetting.findMany({
@@ -90,6 +98,7 @@ router.get('/:key', async (req: Request, res: Response<ApiResponse>) => {
       'company_phone',
       'company_email',
       'company_website',
+      'company_address',
       'social_facebook',
       'social_twitter',
       'social_linkedin',
@@ -105,7 +114,14 @@ router.get('/:key', async (req: Request, res: Response<ApiResponse>) => {
       'site_logo',
       'site_logo_dark',
       'business_hours',
-      'site_maintenance_mode'
+      'site_maintenance_mode',
+      // Statistics
+      'stats_projects_completed',
+      'stats_years_experience',
+      'stats_team_members',
+      'stats_client_satisfaction',
+      'stats_properties_valued',
+      'stats_banking_partners'
     ];
 
     if (!publicSettingKeys.includes(key)) {

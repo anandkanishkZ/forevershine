@@ -18,10 +18,16 @@ import Button from '@/components/Button';
 import SocialMediaLinks from '@/components/SocialMediaLinks';
 import Image from 'next/image';
 import publicApiClient, { TeamMember } from '@/utils/publicApiClient';
+import { useSetting } from '@/hooks/useSiteSettings';
 
 const About = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Dynamic statistics from settings
+  const yearsExperience = useSetting('stats_years_experience', '15');
+  const projectsCompleted = useSetting('stats_projects_completed', '100');
+  const teamMembersCount = useSetting('stats_team_members', '50');
 
   useEffect(() => {
     fetchTeamMembers();
@@ -127,19 +133,19 @@ const About = () => {
                 <div className="flex items-center">
                   <CheckCircle className="text-blue-700 h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                   <span className="text-gray-700 font-medium text-sm sm:text-base">
-                    5+ Years Experience
+                    {yearsExperience}+ Years Experience
                   </span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="text-blue-700 h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                   <span className="text-gray-700 font-medium text-sm sm:text-base">
-                    100+ Projects Completed
+                    {projectsCompleted}+ Projects Completed
                   </span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="text-blue-700 h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                   <span className="text-gray-700 font-medium text-sm sm:text-base">
-                    10+ Expert Team Members
+                    {teamMembersCount}+ Expert Team Members
                   </span>
                 </div>
               </div>
@@ -154,7 +160,7 @@ const About = () => {
                 height={533}
               />
               <div className="absolute -bottom-4 sm:-bottom-6 -right-4 sm:-right-6 bg-yellow-500 text-white p-4 sm:p-6 rounded-lg shadow-lg hidden md:block">
-                <div className="text-3xl sm:text-4xl font-bold mb-2">100+</div>
+                <div className="text-3xl sm:text-4xl font-bold mb-2">{projectsCompleted}+</div>
                 <div className="text-sm sm:text-base">Projects Completed</div>
               </div>
             </div>

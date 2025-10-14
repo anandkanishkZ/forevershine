@@ -27,6 +27,12 @@ interface SiteSettings {
   company_website?: string;
   business_hours?: any;
   site_maintenance_mode?: boolean;
+  stats_projects_completed?: string;
+  stats_years_experience?: string;
+  stats_team_members?: string;
+  stats_client_satisfaction?: string;
+  stats_properties_valued?: string;
+  stats_banking_partners?: string;
 }
 
 interface SiteSettingsContextType {

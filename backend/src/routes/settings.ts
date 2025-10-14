@@ -239,6 +239,14 @@ router.post('/initialize', authenticate, authorize(['SUPER_ADMIN']), async (req:
       { key: 'seo_twitter_card_image', value: '', type: SettingType.TEXT, description: 'Twitter Card image URL' },
       { key: 'site_logo', value: '', type: SettingType.TEXT, description: 'Main site logo URL' },
       { key: 'site_logo_dark', value: '', type: SettingType.TEXT, description: 'Dark mode site logo URL' },
+      
+      // Statistics & Achievements
+      { key: 'stats_projects_completed', value: '100', type: SettingType.NUMBER, description: 'Total number of completed projects' },
+      { key: 'stats_years_experience', value: '15', type: SettingType.NUMBER, description: 'Years of experience in the industry' },
+      { key: 'stats_team_members', value: '50', type: SettingType.NUMBER, description: 'Number of expert team members/engineers' },
+      { key: 'stats_client_satisfaction', value: '98', type: SettingType.NUMBER, description: 'Client satisfaction percentage' },
+      { key: 'stats_properties_valued', value: '100', type: SettingType.NUMBER, description: 'Total properties valued for banks' },
+      { key: 'stats_banking_partners', value: '3', type: SettingType.NUMBER, description: 'Number of banking partners' },
     ];
 
     const upsertPromises = defaultSettings.map(setting =>
