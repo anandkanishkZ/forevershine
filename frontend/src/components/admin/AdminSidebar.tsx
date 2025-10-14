@@ -17,7 +17,8 @@ import {
   X,
   ExternalLink,
   Mail,
-  Image
+  Image,
+  Sliders
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -34,6 +35,11 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       name: 'Dashboard',
       href: '/admin/dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      name: 'Hero Slides',
+      href: '/admin/hero-slides',
+      icon: Sliders,
     },
     {
       name: 'Services',

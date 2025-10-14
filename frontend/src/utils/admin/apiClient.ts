@@ -478,6 +478,80 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Hero Slides methods
+  async getHeroSlides() {
+    return this.request<any[]>('/hero-slides/admin');
+  }
+
+  async getHeroSlidesAnalytics() {
+    return this.request<any>('/hero-slides/analytics/summary');
+  }
+
+  async createHeroSlide(data: any) {
+    return this.request<any>('/hero-slides', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateHeroSlide(id: string, data: any) {
+    return this.request<any>(`/hero-slides/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateHeroSlideStatus(id: string, status: string) {
+    return this.request<any>(`/hero-slides/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async reorderHeroSlide(id: string, displayOrder: number) {
+    return this.request<any>(`/hero-slides/${id}/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({ displayOrder }),
+    });
+  }
+
+  async deleteHeroSlide(id: string) {
+    return this.request<any>(`/hero-slides/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateHeroSlideOrder(data: { id: string; displayOrder: number }[]) {
+    return this.request<any>('/hero-slides/order', {
+      method: 'PUT',
+      body: JSON.stringify({ slides: data }),
+    });
+  }
+
+  async uploadHeroSlideImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    return this.request<any>('/hero-slides/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async createHeroSlideWithFormData(formData: FormData) {
+    return this.request<any>('/hero-slides', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async updateHeroSlideWithFormData(id: string, formData: FormData) {
+    return this.request<any>(`/hero-slides/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

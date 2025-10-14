@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Status } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -281,6 +281,80 @@ async function main() {
         data: testimonial
       });
       console.log(`✅ Created testimonial: ${testimonial.clientName}`);
+    }
+
+    // Seed Hero Slides
+    console.log('🌱 Seeding hero slides...');
+    const heroSlides = [
+      {
+        title: 'Forever Shine',
+        subtitle: 'Engineering Excellence',
+        description: 'Professional engineering consultancy and construction services for residential and commercial projects across Nepal. We deliver precision, quality, and innovation in every project.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+        imageAlt: 'Forever Shine Engineering - Professional engineering consultancy',
+        primaryButtonText: 'Our Services',
+        primaryButtonUrl: '/services',
+        secondaryButtonText: 'Get a Quote',
+        secondaryButtonUrl: '/contact',
+        status: Status.ACTIVE,
+        displayOrder: 1,
+        textAlign: 'left',
+        textColor: '#ffffff',
+        overlayOpacity: 0.4,
+        seoTitle: 'Forever Shine Engineering - Professional Engineering Consultancy in Nepal',
+        seoDescription: 'Leading engineering consultancy providing construction, valuation, and design services across Nepal with precision and excellence.'
+      },
+      {
+        title: 'Property Valuation',
+        subtitle: 'Expert Services',
+        description: 'Comprehensive property valuation services for institutional lenders, including running bill verification, site supervision, and accurate market assessments with professional expertise.',
+        imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+        imageAlt: 'Property Valuation Services - Expert assessment and verification',
+        primaryButtonText: 'Valuation Services',
+        primaryButtonUrl: '/services#valuation',
+        secondaryButtonText: 'Contact Us',
+        secondaryButtonUrl: '/contact',
+        status: Status.ACTIVE,
+        displayOrder: 2,
+        textAlign: 'left',
+        textColor: '#ffffff',
+        overlayOpacity: 0.5,
+        seoTitle: 'Professional Property Valuation Services in Nepal',
+        seoDescription: 'Expert property valuation services for institutional lenders with accurate assessments and comprehensive reporting.'
+      },
+      {
+        title: 'Construction',
+        subtitle: 'Innovation & Quality',
+        description: 'From municipality drawings to 3D interior design, we deliver comprehensive engineering solutions with precision. Modern construction techniques meet traditional craftsmanship.',
+        imageUrl: 'https://images.unsplash.com/photo-1464822759844-d150ad6fbbed?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+        imageAlt: 'Construction Excellence - Modern building and design solutions',
+        primaryButtonText: 'View Projects',
+        primaryButtonUrl: '/projects',
+        secondaryButtonText: 'Start Project',
+        secondaryButtonUrl: '/contact',
+        status: Status.ACTIVE,
+        displayOrder: 3,
+        textAlign: 'left',
+        textColor: '#ffffff',
+        overlayOpacity: 0.35,
+        seoTitle: 'Professional Construction Services and Engineering Solutions',
+        seoDescription: 'Complete construction services from municipal drawings to interior design with modern techniques and quality craftsmanship.'
+      }
+    ];
+
+    // First, clear existing hero slides
+    await prisma.heroSlide.deleteMany({});
+    console.log('🗑️ Cleared existing hero slides');
+
+    for (const slideData of heroSlides) {
+      try {
+        const slide = await prisma.heroSlide.create({
+          data: slideData
+        });
+        console.log(`✅ Created hero slide: ${slide.title}`);
+      } catch (error) {
+        console.error(`❌ Error creating hero slide "${slideData.title}":`, error);
+      }
     }
 
     console.log('🎉 Database seeded successfully!');

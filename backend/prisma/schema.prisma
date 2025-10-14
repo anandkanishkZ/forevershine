@@ -224,3 +224,43 @@ enum SubmissionStatus {
   REPLIED
   ARCHIVED
 }
+
+// Hero Slider model for dynamic hero slides management
+model HeroSlide {
+  id               String      @id @default(cuid())
+  title            String
+  subtitle         String?
+  description      String
+  imageUrl         String
+  imageAlt         String?
+  
+  // Call-to-action buttons (up to 2 buttons)
+  primaryButtonText   String?
+  primaryButtonUrl    String?
+  secondaryButtonText String?
+  secondaryButtonUrl  String?
+  
+  // Display settings
+  status           Status      @default(ACTIVE)
+  displayOrder     Int         @default(0)
+  startDate        DateTime?   // Optional: schedule slide display
+  endDate          DateTime?   // Optional: schedule slide removal
+  
+  // Animation and styling
+  textAlign        String      @default("left") // left, center, right
+  textColor        String      @default("#ffffff") // hex color for text
+  overlayOpacity   Float       @default(0.4) // background overlay opacity
+  
+  // SEO and accessibility
+  seoTitle         String?
+  seoDescription   String?
+  
+  // Analytics
+  views            Int         @default(0)
+  clicks           Int         @default(0)
+  
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("hero_slides")
+}
