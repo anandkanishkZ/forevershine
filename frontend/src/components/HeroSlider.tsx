@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Button from './Button';
+import { API_CONFIG, buildApiUrl } from '@/config/api';
 
 interface Slide {
   id: string;
@@ -26,30 +27,13 @@ export default function HeroSlider() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to construct proper image URLs
-  const getImageUrl = (imageUrl: string): string => {
-    // If it's already a full URL (external or absolute), return as-is
-    if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
-      return imageUrl;
-    }
-    
-    // If it's a relative path from backend uploads
-    if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
-      const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-      return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${cleanPath}`;
-    }
-    
-    // If it's just a filename, assume it's in uploads
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${imageUrl}`;
-  };
-
   // Fetch dynamic slides from API
   useEffect(() => {
     const fetchSlides = async () => {
       try {
         console.log('Fetching hero slides...');
         
-        const response = await fetch('/api/hero-slides/', {
+        const response = await fetch(buildApiUrl('/hero-slides/'), {
           cache: 'no-store' // Ensure fresh data
         });
         
@@ -257,14 +241,14 @@ export default function HeroSlider() {
         >
           <div className="absolute inset-0">
             <Image
-              src={getImageUrl(slide.imageUrl)}
+              src={API_CONFIG.getImageUrl(slide.imageUrl)}
               alt={slide.imageAlt || slide.title}
               fill
               className="object-cover"
               priority={index === 0}
               unoptimized={true}
               onError={(e) => {
-                console.error('Failed to load slide image:', slide.imageUrl, 'processed:', getImageUrl(slide.imageUrl));
+                console.error('Failed to load slide image:', slide.imageUrl, 'processed:', API_CONFIG.getImageUrl(slide.imageUrl));
               }}
               onLoad={() => {
                 console.log('Successfully loaded slide image:', slide.imageUrl);

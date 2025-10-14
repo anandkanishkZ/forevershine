@@ -4,6 +4,7 @@ import React from 'react';
 import { Settings, Clock, Mail, Phone } from 'lucide-react';
 import { useSetting } from '@/hooks/useSiteSettings';
 import Image from 'next/image';
+import { API_CONFIG } from '@/config/api';
 
 export default function MaintenancePage() {
   // Dynamic content from settings
@@ -24,7 +25,7 @@ export default function MaintenancePage() {
           {logoUrl && (
             <div className="mb-3">
               <Image
-                src={logoUrl.startsWith('http') ? logoUrl : `http://localhost:5000/api/media/serve/${logoUrl}`}
+                src={API_CONFIG.getImageUrl(logoUrl)}
                 alt={`${companyName} Logo`}
                 width={80}
                 height={40}

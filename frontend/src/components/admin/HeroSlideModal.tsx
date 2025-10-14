@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { apiClient } from '@/utils/admin/apiClient';
 import MediaPicker from '@/components/admin/MediaPicker';
 import { MediaFile } from '@/types/admin';
+import { API_CONFIG } from '@/config/api';
 
 interface HeroSlide {
   id: string;
@@ -83,22 +84,7 @@ const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
 
   // Helper function to construct proper image URLs
   const getImageUrl = (imageUrl: string): string => {
-    // If it's already a full URL (external), return as-is
-    if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
-      return imageUrl;
-    }
-    
-    // If it's a relative path from backend uploads
-    if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
-      const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-      // Remove /api from the API URL since images are served directly from backend
-      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '');
-      return `${baseUrl}${cleanPath}`;
-    }
-    
-    // If it's just a filename, assume it's in uploads
-    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '');
-    return `${baseUrl}/uploads/${imageUrl}`;
+    return API_CONFIG.getImageUrl(imageUrl);
   };
 
   // Define sections for the sidebar

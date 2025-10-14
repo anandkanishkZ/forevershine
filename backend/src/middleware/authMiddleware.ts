@@ -8,9 +8,18 @@ export const authenticate = (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
+    // Try to get token from cookies first (preferred method)
+    let token = req.cookies?.accessToken;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Fallback to Authorization header for backwards compatibility
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7); // Remove 'Bearer ' prefix
+      }
+    }
+    
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'Authentication required',
@@ -18,7 +27,6 @@ export const authenticate = (
       });
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     const decoded = verifyToken(token);
     
     req.user = decoded;

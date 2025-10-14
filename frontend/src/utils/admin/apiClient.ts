@@ -4,27 +4,37 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 
 class ApiClient {
   private baseUrl: string;
-  private token: string | null = null;
   private requestQueue: Map<string, Promise<any>> = new Map();
+  private csrfToken: string | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
-    
-    // Initialize token from localStorage on client side
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('admin_token');
-    }
   }
 
-  setToken(token: string | null) {
-    this.token = token;
-    if (typeof window !== 'undefined') {
-      if (token) {
-        localStorage.setItem('admin_token', token);
-      } else {
-        localStorage.removeItem('admin_token');
+  // Fetch CSRF token from server
+  private async fetchCsrfToken(): Promise<string | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/csrf-token`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        this.csrfToken = data.data?.csrfToken || null;
+        return this.csrfToken;
       }
+    } catch (error) {
+      console.error('Failed to fetch CSRF token:', error);
     }
+    return null;
+  }
+
+  // Get CSRF token (fetch if not cached)
+  private async getCsrfToken(): Promise<string | null> {
+    if (!this.csrfToken) {
+      await this.fetchCsrfToken();
+    }
+    return this.csrfToken;
   }
 
   private async request<T>(
@@ -49,8 +59,13 @@ class ApiClient {
       headers['Content-Type'] = 'application/json';
     }
 
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+    // Add CSRF token for state-changing requests (POST, PUT, DELETE, PATCH)
+    const method = options.method?.toUpperCase() || 'GET';
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfToken = await this.getCsrfToken();
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
     }
 
     const requestPromise = (async (): Promise<ApiResponse<T>> => {
@@ -61,10 +76,55 @@ class ApiClient {
         const response = await fetch(url, {
           ...options,
           headers,
+          credentials: 'include', // Include cookies in requests
           signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
+
+        // Handle 403 - CSRF token might be invalid, refresh it
+        if (response.status === 403) {
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData.message?.includes('CSRF')) {
+            // Refresh CSRF token and retry
+            await this.fetchCsrfToken();
+            const csrfToken = this.csrfToken;
+            if (csrfToken) {
+              headers['X-CSRF-Token'] = csrfToken;
+              const retryResponse = await fetch(url, {
+                ...options,
+                headers,
+                credentials: 'include',
+              });
+              
+              if (retryResponse.ok) {
+                const data = await retryResponse.json();
+                return data;
+              }
+            }
+          }
+        }
+
+        // Handle 401 - try to refresh token
+        if (response.status === 401) {
+          const refreshed = await this.refreshToken();
+          if (refreshed) {
+            // Retry the original request
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers,
+              credentials: 'include',
+            });
+            
+            if (!retryResponse.ok) {
+              const errorData = await retryResponse.json().catch(() => ({}));
+              throw new Error(errorData.message || `HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+            }
+            
+            const data = await retryResponse.json();
+            return data;
+          }
+        }
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -93,9 +153,24 @@ class ApiClient {
     return requestPromise;
   }
 
+  // Refresh access token using refresh token
+  private async refreshToken(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
+    }
+  }
+
   // Authentication
   async login(email: string, password: string) {
-    return this.request<{ token: string; user: any }>('/auth/login', {
+    return this.request<{ user: any }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -180,14 +255,9 @@ class ApiClient {
     const formData = new FormData();
     formData.append('image', file);
 
-    const headers: Record<string, string> = {};
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-    }
-
     const response = await fetch(`${this.baseUrl}/upload/image`, {
       method: 'POST',
-      headers,
+      credentials: 'include', // Include cookies
       body: formData,
     });
 

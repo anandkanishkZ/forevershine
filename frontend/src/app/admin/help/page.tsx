@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
+import { buildApiUrl } from '@/config/api';
 import { 
   HelpCircle, MessageSquare, Phone, Mail, ExternalLink, 
   Server, Database, Cpu, HardDrive, Clock, Activity, CheckCircle, Zap, Shield, 
@@ -90,7 +91,7 @@ export default function AdminHelpPage() {
 
       console.log('🔑 Token found, fetching system info...');
 
-      const response = await fetch('http://localhost:5000/api/system/info', {
+      const response = await fetch(buildApiUrl('/system/info'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

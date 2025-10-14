@@ -3,11 +3,12 @@ import { prisma } from '../utils/prisma';
 import { ApiResponse, ContactSubmissionData } from '../types';
 import { body, validationResult } from 'express-validator';
 import { notifyNewContactSubmission } from '../utils/notificationService';
+import { contactLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-// Submit contact form (public endpoint)
-router.post('/', [
+// Submit contact form (public endpoint) with rate limiting
+router.post('/', contactLimiter, [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('subject').notEmpty().withMessage('Subject is required'),

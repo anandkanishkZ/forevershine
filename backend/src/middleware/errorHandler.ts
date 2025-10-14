@@ -7,13 +7,26 @@ export const errorHandler = (
   res: Response<ApiResponse>,
   next: NextFunction
 ) => {
-  console.error('Error:', err);
+  // Log full error details server-side for debugging
+  console.error('Error occurred:', {
+    message: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    timestamp: new Date().toISOString(),
+    body: req.body,
+    params: req.params,
+    query: req.query
+  });
+
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   if (err.name === 'ValidationError') {
     return res.status(400).json({
       success: false,
       message: 'Validation Error',
-      errors: [err.message]
+      errors: isDevelopment ? [err.message] : ['Invalid data provided']
     });
   }
 
@@ -33,10 +46,21 @@ export const errorHandler = (
     });
   }
 
-  // Default error
+  // Prisma/Database errors
+  if (err.name === 'PrismaClientKnownRequestError') {
+    return res.status(400).json({
+      success: false,
+      message: isDevelopment ? 'Database Error' : 'An error occurred',
+      errors: isDevelopment ? [err.message] : ['Unable to process request']
+    });
+  }
+
+  // Default error - sanitize in production
   res.status(500).json({
     success: false,
-    message: 'Internal Server Error',
-    errors: [process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong']
+    message: isDevelopment ? 'Internal Server Error' : 'An error occurred',
+    errors: isDevelopment 
+      ? [err.message, err.stack || 'No stack trace'] 
+      : ['Something went wrong. Please try again later.']
   });
 };

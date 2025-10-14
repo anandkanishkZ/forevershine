@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Lock, Mail, Save, Eye, EyeOff, Camera, Upload } from 'lucide-react';
 import MediaPicker from '@/components/admin/MediaPicker';
 import apiClient from '@/utils/admin/apiClient';
+import { API_CONFIG } from '@/config/api';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
@@ -198,7 +199,7 @@ const ProfileSettings: React.FC = () => {
                 {profileData.profilePhoto ? (
                   <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-gray-200">
                     <Image
-                      src={profileData.profilePhoto.startsWith('http') ? profileData.profilePhoto : `http://localhost:5000/api/media/serve/${profileData.profilePhoto}`}
+                      src={API_CONFIG.getImageUrl(profileData.profilePhoto)}
                       alt="Profile Photo"
                       fill
                       className="object-cover"

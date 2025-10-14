@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Ruler, Building2, Calculator, MapPin, Home, HardHat, CheckCircle, Loader2 } from 'lucide-react';
 import SectionTitle from '@/components/SectionTitle';
 import Button from '@/components/Button';
+import { buildApiUrl } from '@/config/api';
 
 interface Service {
   id: string;
@@ -187,7 +188,7 @@ export default function Services() {
       setError(null);
       
       // Try to fetch from backend API
-      const response = await fetch('http://localhost:5000/api/services?status=ACTIVE');
+      const response = await fetch(buildApiUrl('/services?status=ACTIVE'));
       
       if (response.ok) {
         const data = await response.json();

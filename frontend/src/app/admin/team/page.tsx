@@ -5,6 +5,7 @@ import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
 import MediaPicker from '@/components/admin/MediaPicker';
 import SocialMediaLinks from '@/components/SocialMediaLinks';
 import apiClient from '@/utils/admin/apiClient';
+import { API_CONFIG } from '@/config/api';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import {
@@ -233,7 +234,7 @@ export default function AdminTeam() {
                 {member.imageUrl && (
                   <div className="relative w-full h-48">
                     <Image
-                      src={member.imageUrl.startsWith('http') ? member.imageUrl : `http://localhost:5000/api/media/serve/${member.imageUrl}`}
+                      src={API_CONFIG.getImageUrl(member.imageUrl)}
                       alt={member.name}
                       fill
                       className="object-cover rounded-t-lg"
@@ -411,7 +412,7 @@ export default function AdminTeam() {
                       <div className="space-y-3">
                         <div className="relative w-32 h-32 mx-auto">
                           <Image
-                            src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `http://localhost:5000/api/media/serve/${formData.imageUrl}`}
+                            src={API_CONFIG.getImageUrl(formData.imageUrl)}
                             alt="Profile preview"
                             fill
                             className="object-cover rounded-lg"

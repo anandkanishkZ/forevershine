@@ -8,48 +8,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on mount
-    const savedToken = localStorage.getItem('admin_token');
-    if (savedToken) {
-      setToken(savedToken);
-      apiClient.setToken(savedToken);
-      
-      // Verify token and fetch user data
-      const fetchUserData = async () => {
-        try {
-          const response = await apiClient.getCurrentUser();
-          if (response.success && response.data) {
-            setUser(response.data);
-          } else {
-            // Token is invalid, clear it
-            localStorage.removeItem('admin_token');
-            apiClient.setToken(null);
-          }
-        } catch (error) {
-          console.error('Failed to verify token:', error);
-          // Set fallback user data
-          setUser({ 
-            id: '1', 
-            email: 'admin@forevershine.com.np', 
-            role: 'Administrator',
-            name: 'John Doe',
-            profilePhoto: '',
-            loginCount: 47,
-            lastLoginDays: 0
-          });
-        } finally {
-          setIsLoading(false);
+    // Check for existing authentication by trying to fetch user data
+    const checkAuth = async () => {
+      try {
+        const response = await apiClient.getCurrentUser();
+        if (response.success && response.data) {
+          setUser(response.data);
         }
-      };
-      
-      fetchUserData();
-    } else {
-      setIsLoading(false);
-    }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // User is not authenticated or session expired
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -58,12 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiClient.login(email, password);
       
       if (response.success && response.data) {
-        const { token: newToken, user: userData } = response.data;
-        
-        setToken(newToken);
-        setUser(userData);
-        apiClient.setToken(newToken);
-        
+        setUser(response.data.user);
         return true;
       }
       return false;
@@ -75,17 +48,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call logout endpoint to clear cookies
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout request failed:', error);
+    }
+    
     setUser(null);
-    setToken(null);
-    apiClient.setToken(null);
-    localStorage.removeItem('admin_token');
   };
 
   return (
     <AuthContext.Provider value={{
       user,
-      token,
+      token: null, // No longer using token in frontend
       login,
       logout,
       isLoading

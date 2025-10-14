@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from '@/config/api';
 import {
   CheckCircle,
   Award,
@@ -400,7 +401,7 @@ const About = () => {
                   {member.imageUrl && (
                     <div className="relative h-48 sm:h-64 overflow-hidden rounded-t-lg">
                       <Image
-                        src={member.imageUrl.startsWith('http') ? member.imageUrl : `http://localhost:5000/api/media/serve/${member.imageUrl}`}
+                        src={API_CONFIG.getImageUrl(member.imageUrl)}
                         alt={member.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"

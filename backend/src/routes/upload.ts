@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { ApiResponse } from '../types';
+import { uploadLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -35,8 +36,8 @@ const upload = multer({
   }
 });
 
-// Upload single image
-router.post('/image', upload.single('image'), (req: Request, res: Response<ApiResponse>) => {
+// Upload single image with rate limiting
+router.post('/image', uploadLimiter, upload.single('image'), (req: Request, res: Response<ApiResponse>) => {
   try {
     if (!req.file) {
       return res.status(400).json({

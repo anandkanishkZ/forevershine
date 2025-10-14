@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../utils/prisma';
 import { ApiResponse, AuthRequest } from '../types';
 import { authenticate } from '../middleware/authMiddleware';
+import { passwordLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -125,7 +126,7 @@ router.put('/me', authenticate, async (req: AuthRequest, res: Response<ApiRespon
 });
 
 // Change password
-router.put('/change-password', authenticate, async (req: AuthRequest, res: Response<ApiResponse>) => {
+router.put('/change-password', authenticate, passwordLimiter, async (req: AuthRequest, res: Response<ApiResponse>) => {
   try {
     const userId = req.user?.id;
     const { currentPassword, newPassword, confirmPassword } = req.body;
