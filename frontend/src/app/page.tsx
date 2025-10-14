@@ -1,13 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import HeroSlider from '@/components/HeroSlider';
 import SectionTitle from '@/components/SectionTitle';
 import ServicesCarousel from '@/components/ServicesCarousel';
 import ProjectCard from '@/components/ProjectCard';
 import UniqueProjectsCarousel from '@/components/UniqueProjectsCarousel';
-import TestimonialCard from '@/components/TestimonialCard';
+import SimpleTestimonialsCarousel from '@/components/SimpleTestimonialsCarousel';
 import Button from '@/components/Button';
 import { useSetting } from '@/hooks/useSiteSettings';
+import { apiClient } from '@/utils/admin/apiClient';
 import {
   MapPin,
   CheckCircle,
@@ -25,17 +27,49 @@ export default function Home() {
   const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
 
-  const testimonials = [
+  // State for testimonials
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  // Fetch testimonials on component mount
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await apiClient.getPublicTestimonials({ 
+          limit: 10  // Fetch ALL testimonials, not just featured
+        });
+        
+        if (response.success) {
+          setTestimonials(response.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  // Fallback testimonials if none are found
+  const fallbackTestimonials = [
     {
-      name: 'John Smith',
+      id: 'fallback-1',
+      clientName: 'John Smith',
       position: 'CEO',
       company: 'Smith Enterprises',
-      testimonial:
-        'Forever Shine Engineering delivered our office complex project on time and within budget. Their attention to detail and professional approach exceeded our expectations.',
-      image:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      content: 'Forever Shine Engineering delivered our office complex project on time and within budget. Their attention to detail and professional approach exceeded our expectations.',
+      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      rating: 5,
+      status: 'ACTIVE' as const,
+      featured: true,
+      createdAt: '',
+      updatedAt: '',
     }
   ];
+
+  const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
 
   return (
     <>
@@ -174,21 +208,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+          <div className="absolute top-10 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <SectionTitle
             title="Client Testimonials"
             subtitle="What our clients say about our services."
             center={true}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={index}
-                {...testimonial}
+          <div className="max-w-7xl mx-auto mt-12">
+            {testimonialsLoading ? (
+              <div className="flex justify-center items-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : displayTestimonials.length > 0 ? (
+              <SimpleTestimonialsCarousel
+                testimonials={displayTestimonials}
               />
-            ))}
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-gray-500 text-lg">No testimonials available at the moment.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

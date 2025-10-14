@@ -295,9 +295,67 @@ class ApiClient {
     });
   }
 
-  // Testimonials (placeholder)
-  async getTestimonials() {
-    return this.request<any[]>('/testimonials');
+  // Testimonials Management
+  async getTestimonials(params?: { 
+    page?: number; 
+    limit?: number; 
+    search?: string; 
+    status?: string; 
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.status) searchParams.append('status', params.status);
+
+    return this.request<any[]>(`/testimonials/admin?${searchParams}`);
+  }
+
+  async getPublicTestimonials(params?: { 
+    featured?: boolean; 
+    limit?: number; 
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    return this.request<any[]>(`/testimonials?${searchParams}`);
+  }
+
+  async getTestimonial(id: string) {
+    return this.request<any>(`/testimonials/${id}`);
+  }
+
+  async createTestimonial(data: any) {
+    return this.request<any>('/testimonials', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTestimonial(id: string, data: any) {
+    return this.request<any>(`/testimonials/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTestimonial(id: string) {
+    return this.request<any>(`/testimonials/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async toggleTestimonialStatus(id: string) {
+    return this.request<any>(`/testimonials/${id}/toggle-status`, {
+      method: 'PATCH',
+    });
+  }
+
+  async toggleTestimonialFeatured(id: string) {
+    return this.request<any>(`/testimonials/${id}/toggle-featured`, {
+      method: 'PATCH',
+    });
   }
 
   // Media Management

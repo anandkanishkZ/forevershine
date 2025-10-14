@@ -173,12 +173,76 @@ const sampleProjects = [
   }
 ];
 
+const sampleTestimonials = [
+  {
+    clientName: 'Rajesh Sharma',
+    position: 'Managing Director',
+    company: 'Nepal Investment Mega Bank',
+    content: 'Forever Shine Engineering has been our trusted partner for property valuation services. Their thorough assessments and professional reports have been instrumental in our loan approval processes.',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 5,
+    status: 'ACTIVE' as const,
+    featured: true
+  },
+  {
+    clientName: 'Sunita Lama',
+    position: 'Project Manager',
+    company: 'Kathmandu Metropolitan Office',
+    content: 'The municipality drawing and design services provided by Forever Shine Engineering are exceptional. They ensure all our projects meet regulatory standards and are completed efficiently.',
+    imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 5,
+    status: 'ACTIVE' as const,
+    featured: true
+  },
+  {
+    clientName: 'Amit Kumar Gupta',
+    position: 'CEO',
+    company: 'Gupta Construction Pvt. Ltd.',
+    content: 'Their 3D interior design and visualization services transformed our residential project. The attention to detail and creative solutions exceeded our expectations.',
+    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 5,
+    status: 'ACTIVE' as const,
+    featured: true
+  },
+  {
+    clientName: 'Priya Thapa',
+    position: 'Branch Manager',
+    company: 'Nabil Bank Limited',
+    content: 'Forever Shine Engineering\'s property valuation reports are comprehensive and accurate. Their professional approach has made our lending decisions more confident.',
+    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 5,
+    status: 'ACTIVE' as const,
+    featured: false
+  },
+  {
+    clientName: 'Binod Maharjan',
+    position: 'Owner',
+    company: 'Maharjan Residence',
+    content: 'The structural design and supervision services for our home construction were outstanding. The team was professional, timely, and delivered quality work.',
+    imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 4,
+    status: 'ACTIVE' as const,
+    featured: false
+  },
+  {
+    clientName: 'Dr. Kamala Singh',
+    position: 'Director',
+    company: 'Singh Medical Center',
+    content: 'The estimation and costing services provided were very accurate and helped us plan our medical facility construction within budget. Highly recommended!',
+    imageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+    rating: 5,
+    status: 'ACTIVE' as const,
+    featured: false
+  }
+];
+
 async function main() {
   console.log('🌱 Seeding database with sample data...');
 
   try {
     // Clear existing data
     await prisma.blogPost.deleteMany();
+    await prisma.testimonial.deleteMany();
     await prisma.service.deleteMany();
     await prisma.project.deleteMany();
     await prisma.user.deleteMany();
@@ -209,6 +273,14 @@ async function main() {
         data: project
       });
       console.log(`✅ Created project: ${project.title}`);
+    }
+
+    // Create new testimonials
+    for (const testimonial of sampleTestimonials) {
+      await prisma.testimonial.create({
+        data: testimonial
+      });
+      console.log(`✅ Created testimonial: ${testimonial.clientName}`);
     }
 
     console.log('🎉 Database seeded successfully!');
