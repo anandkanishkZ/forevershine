@@ -8,7 +8,7 @@ import Image from 'next/image';
 export default function MaintenancePage() {
   // Dynamic content from settings
   const companyName = useSetting('company_name', 'Forever Shine Engineering');
-  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com.np');
   const companyPhone = useSetting('company_phone', '+977 9805996059');
   const siteLogo = useSetting('site_logo', '');
   const ogImage = useSetting('seo_og_image', '');

@@ -70,7 +70,7 @@ PORT=5000
 DATABASE_URL="postgresql://postgres:admin123@localhost:5432/forever_shine_db"
 JWT_SECRET=your-super-secret-jwt-key-here-change-in-production-2024
 JWT_EXPIRES_IN=7d
-ADMIN_EMAIL=admin@forevershine.com
+ADMIN_EMAIL=admin@forevershine.com.np
 ADMIN_PASSWORD=admin123
 UPLOAD_PATH=./uploads
 MAX_FILE_SIZE=5242880
@@ -79,7 +79,7 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 ### **Default Admin Login**
-- **Email**: admin@forevershine.com
+- **Email**: admin@forevershine.com.np
 - **Password**: admin123
 
 ## 🧪 **TESTING RESULTS**

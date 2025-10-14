@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Set fallback user data
           setUser({ 
             id: '1', 
-            email: 'admin@forevershine.com', 
+            email: 'admin@forevershine.com.np', 
             role: 'Administrator',
             name: 'John Doe',
             profilePhoto: '',

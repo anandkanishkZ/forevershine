@@ -22,7 +22,7 @@ export default function TermsOfService() {
             <p>In no event shall Forever Shine Engineering be liable for any damages arising out of the use or inability to use our services.</p>
             
             <h2>Contact Information</h2>
-            <p>For questions about these Terms of Service, please contact us at info@forevershine.com</p>
+            <p>For questions about these Terms of Service, please contact us at info@forevershine.com.np</p>
           </div>
         </div>
       </div>

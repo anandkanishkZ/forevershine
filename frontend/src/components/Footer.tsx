@@ -10,9 +10,10 @@ export default function Footer() {
   
   // Dynamic content from settings
   const companyName = useSetting('company_name', 'Forever Shine Engineering');
-  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province, Nepal');
+  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
   const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
-  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com.np');
+  const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   
   // Dynamic social media links
   const facebookUrl = useSetting('social_facebook', '');

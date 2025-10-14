@@ -11,7 +11,7 @@ const Contact = () => {
   // Dynamic content from settings
   const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
   const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
-  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com.np');
 
   const officeLocations = [
     {
@@ -22,6 +22,24 @@ const Contact = () => {
       hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
       mapUrl:
         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3567.398367281529!2d85.27076231505767!3d26.76569598319099!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ec4b7e7e7e7e7f%3A0x7e7e7e7e7e7e7e7f!2sBirta%20Chowk%2C%20Rautahat%2C%20Nepal!5e0!3m2!1sen!2snp!4v1639321915921!5m2!1sen!2snp',
+    },
+    {
+      name: 'Branch Office - Dhapakhel, Lalitpur',
+      address: 'Dhapakhel, Lalitpur',
+      phone: companyPhone,
+      email: companyEmail,
+      hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
+      mapUrl:
+        'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.5!2d85.3!3d27.65!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDM5JzAwLjAiTiA4NcKwMTgnMDAuMCJF!5e0!3m2!1sen!2snp!4v1639321915921!5m2!1sen!2snp',
+    },
+    {
+      name: 'Branch Office - Janakpur',
+      address: 'Bishnupur Chowk, Siraha',
+      phone: companyPhone,
+      email: companyEmail,
+      hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
+      mapUrl:
+        'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3567.5!2d86.2!3d26.72!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDQzJzEyLjAiTiA4NsKwMTInMDAuMCJF!5e0!3m2!1sen!2snp!4v1639321915921!5m2!1sen!2snp',
     },
   ];
 
@@ -139,7 +157,7 @@ const Contact = () => {
             center={true}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
             {officeLocations.map((office, index) => (
               <div key={index} className="bg-gray-50 rounded-lg shadow-lg overflow-hidden">
                 <div className="h-64 w-full">

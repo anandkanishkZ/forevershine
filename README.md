@@ -204,7 +204,7 @@ npm run type-check
 ## 📞 Support
 
 For support and questions:
-- **Email**: support@forevershine.com
+- **Email**: support@forevershine.com.np
 - **Documentation**: Check individual README files in frontend/ and backend/
 - **Issues**: Create GitHub issues for bug reports
 

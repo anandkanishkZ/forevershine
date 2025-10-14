@@ -83,7 +83,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="admin@forevershine.com"
+                  placeholder="admin@forevershine.com.np"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function AdminLogin() {
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-gray-500">Email: admin@forevershine.com</p>
+            <p className="text-xs text-gray-500">Email: admin@forevershine.com.np</p>
             <p className="text-xs text-gray-500">Password: admin123</p>
           </div>
         </div>

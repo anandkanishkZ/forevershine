@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
             <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.</p>
             
             <h2>Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy, please contact us at info@forevershine.com</p>
+            <p>If you have any questions about this Privacy Policy, please contact us at info@forevershine.com.np</p>
           </div>
         </div>
       </div>

@@ -133,7 +133,7 @@ const About = () => {
                 <div className="flex items-center">
                   <CheckCircle className="text-blue-700 h-5 w-5 mr-2" />
                   <span className="text-gray-700 font-medium">
-                    250+ Projects Completed
+                    100+ Projects Completed
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -154,7 +154,7 @@ const About = () => {
                 height={533}
               />
               <div className="absolute -bottom-6 -right-6 bg-yellow-500 text-white p-6 rounded-lg shadow-lg hidden md:block">
-                <div className="text-4xl font-bold mb-2">250+</div>
+                <div className="text-4xl font-bold mb-2">100+</div>
                 <div>Projects Completed</div>
               </div>
             </div>

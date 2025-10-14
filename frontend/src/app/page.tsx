@@ -23,7 +23,7 @@ export default function Home() {
   const companyName = useSetting('company_name', 'Forever Shine Engineering');
   const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
   const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
-  const companyEmail = useSetting('company_email', 'info@forevershine.com');
+  const companyEmail = useSetting('company_email', 'info@forevershine.com.np');
   const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
 
@@ -108,7 +108,7 @@ export default function Home() {
                       Banking Sector Expertise
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Specialized valuation services for Nepal Investment Mega Bank, Nabil Bank, and other leading institutions
+                      Nepal's leading property valuation firm trusted by major banks and financial institutions
                     </p>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export default function Home() {
                       Professional Certification
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Certified engineers providing accurate property assessments and construction monitoring
+                      Professional engineers delivering accurate assessments for critical lending decisions
                     </p>
                   </div>
                 </div>
@@ -159,11 +159,11 @@ export default function Home() {
               <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-6 border">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-brand-red">50+</div>
+                    <div className="text-2xl font-bold text-brand-red">100+</div>
                     <div className="text-xs text-gray-600">Properties Valued</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-brand-blue">15+</div>
+                    <div className="text-2xl font-bold text-brand-blue">3+</div>
                     <div className="text-xs text-gray-600">Banking Partners</div>
                   </div>
                 </div>
