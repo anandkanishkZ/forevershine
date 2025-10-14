@@ -137,13 +137,6 @@ export default function AdminLogin() {
               )}
             </button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-gray-500">Email: admin@forevershine.com.np</p>
-            <p className="text-xs text-gray-500">Password: admin123</p>
-          </div>
         </div>
 
         {/* Footer */}

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
 import { ApiResponse, ContactSubmissionData } from '../types';
 import { body, validationResult } from 'express-validator';
+import { notifyNewContactSubmission } from '../utils/notificationService';
 
 const router = Router();
 
@@ -26,6 +27,14 @@ router.post('/', [
     
     const submission = await prisma.contactSubmission.create({
       data: submissionData
+    });
+
+    // Create notification for admin
+    await notifyNewContactSubmission({
+      name: submission.name,
+      email: submission.email,
+      subject: submission.subject || undefined,
+      id: submission.id,
     });
 
     res.status(201).json({

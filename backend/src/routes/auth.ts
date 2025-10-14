@@ -4,6 +4,7 @@ import { prisma } from '../utils/prisma';
 import { generateToken } from '../utils/jwt';
 import { ApiResponse } from '../types';
 import { body, validationResult } from 'express-validator';
+import { notifyWelcome, getUserNotifications } from '../utils/notificationService';
 
 const router = Router();
 
@@ -47,6 +48,14 @@ router.post('/login', [
       });
     }
 
+    // Check if user has any notifications (first login check)
+    const existingNotifications = await getUserNotifications(user.id, { limit: 1 });
+    
+    // If no notifications exist, this might be first login - create welcome notification
+    if (existingNotifications.length === 0) {
+      await notifyWelcome(user.id, user.name || undefined);
+    }
+
     // Generate token
     const token = generateToken({
       id: user.id,
@@ -62,7 +71,9 @@ router.post('/login', [
         user: {
           id: user.id,
           email: user.email,
-          role: user.role
+          name: user.name,
+          role: user.role,
+          profilePhoto: user.profilePhoto
         }
       }
     });

@@ -3,6 +3,7 @@ import { prisma } from '../utils/prisma';
 import { ApiResponse, ServiceData, PaginationQuery, AuthRequest } from '../types';
 import { body, validationResult } from 'express-validator';
 import { authenticate, authorize } from '../middleware/authMiddleware';
+import { notifyNewService, notifyServiceUpdated } from '../utils/notificationService';
 
 const router = Router();
 
@@ -114,6 +115,12 @@ router.post('/',
       data: serviceData
     });
 
+    // Create notification for new service
+    await notifyNewService({
+      title: service.title,
+      id: service.id,
+    });
+
     res.status(201).json({
       success: true,
       message: 'Service created successfully',
@@ -155,6 +162,12 @@ router.put('/:id',
     const service = await prisma.service.update({
       where: { id },
       data: updateData
+    });
+
+    // Create notification for service update
+    await notifyServiceUpdated({
+      title: service.title,
+      id: service.id,
     });
 
     res.json({

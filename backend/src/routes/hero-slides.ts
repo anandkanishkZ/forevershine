@@ -472,6 +472,18 @@ router.post('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    // Check if slide exists first
+    const slide = await prisma.heroSlide.findUnique({
+      where: { id }
+    });
+
+    if (!slide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Hero slide not found'
+      });
+    }
+
     await prisma.heroSlide.update({
       where: { id },
       data: { views: { increment: 1 } }
@@ -481,8 +493,17 @@ router.post('/:id', async (req: Request, res: Response) => {
       success: true,
       message: 'View tracked successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error tracking view:', error);
+    
+    // Handle record not found error gracefully
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        message: 'Hero slide not found'
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Failed to track view'

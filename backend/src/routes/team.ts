@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { ApiResponse } from '../types';
 import { authenticate } from '../middleware/authMiddleware';
 import { prisma } from '../utils/prisma';
+import { notifyNewTeamMember, notifyTeamMemberUpdated } from '../utils/notificationService';
 
 const router = Router();
 
@@ -134,6 +135,13 @@ router.post('/', authenticate, async (req: Request, res: Response<ApiResponse>) 
       }
     });
 
+    // Create notification for new team member
+    await notifyNewTeamMember({
+      name: teamMember.name,
+      id: teamMember.id,
+      position: teamMember.position || undefined,
+    });
+
     res.status(201).json({ 
       success: true, 
       message: 'Team member created successfully', 
@@ -208,6 +216,12 @@ router.put('/:id', authenticate, async (req: Request, res: Response<ApiResponse>
         status,
         displayOrder
       }
+    });
+
+    // Create notification for team member update
+    await notifyTeamMemberUpdated({
+      name: updatedMember.name,
+      id: updatedMember.id,
     });
 
     res.json({ 

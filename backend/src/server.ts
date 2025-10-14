@@ -22,6 +22,7 @@ import mediaRoutes from './routes/media';
 import profileRoutes from './routes/profile';
 import notificationRoutes from './routes/notifications';
 import heroSlidesRoutes from './routes/hero-slides';
+import systemRoutes from './routes/system';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -65,6 +66,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/hero-slides', heroSlidesRoutes);
+app.use('/api/system', systemRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req: Request, res: Response) => {

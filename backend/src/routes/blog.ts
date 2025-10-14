@@ -2,6 +2,11 @@ import { Router, Request, Response } from 'express';
 import { ApiResponse, AuthRequest } from '../types';
 import { authenticate, authorize } from '../middleware/authMiddleware';
 import { prisma } from '../utils/prisma';
+import { 
+  notifyNewBlogPost, 
+  notifyBlogPublished, 
+  notifyBlogUpdated 
+} from '../utils/notificationService';
 
 const router = Router();
 
@@ -261,6 +266,20 @@ router.post('/', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req: 
       }
     });
 
+    // Create notifications based on status
+    if (post.status === 'PUBLISHED') {
+      await notifyBlogPublished({
+        title: post.title,
+        id: post.id,
+      });
+    } else {
+      await notifyNewBlogPost({
+        title: post.title,
+        id: post.id,
+        authorId: post.authorId,
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: 'Blog post created successfully',
@@ -350,6 +369,21 @@ router.put('/:id', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req
         }
       }
     });
+
+    // Create notifications based on status change
+    const statusChanged = status !== undefined && status !== existingPost.status;
+    
+    if (statusChanged && post.status === 'PUBLISHED') {
+      await notifyBlogPublished({
+        title: post.title,
+        id: post.id,
+      });
+    } else {
+      await notifyBlogUpdated({
+        title: post.title,
+        id: post.id,
+      });
+    }
 
     res.json({
       success: true,

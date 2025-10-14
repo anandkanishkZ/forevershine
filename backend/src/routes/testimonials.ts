@@ -3,6 +3,10 @@ import { PrismaClient } from '@prisma/client';
 import { ApiResponse, AuthRequest, PaginationQuery, TestimonialData } from '../types';
 import { authenticate } from '../middleware/authMiddleware';
 import { body, query, validationResult } from 'express-validator';
+import { 
+  notifyNewTestimonial, 
+  notifyTestimonialStatusChanged 
+} from '../utils/notificationService';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -171,6 +175,12 @@ router.post('/', authenticate, createTestimonialValidation, async (req: AuthRequ
       },
     });
 
+    // Create notification for new testimonial
+    await notifyNewTestimonial({
+      clientName: testimonial.clientName,
+      id: testimonial.id,
+    });
+
     res.status(201).json({
       success: true,
       message: 'Testimonial created successfully',
@@ -293,6 +303,13 @@ router.patch('/:id/toggle-status', authenticate, async (req: AuthRequest, res: R
       data: {
         status: existingTestimonial.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE',
       },
+    });
+
+    // Create notification for status change
+    await notifyTestimonialStatusChanged({
+      clientName: testimonial.clientName,
+      id: testimonial.id,
+      newStatus: testimonial.status,
     });
 
     res.json({

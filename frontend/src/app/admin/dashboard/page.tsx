@@ -1,18 +1,19 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
 import apiClient from '@/utils/admin/apiClient';
 import {
   Wrench,
   FolderOpen,
   Users,
+  ArrowRight,
+  Image,
+  Sliders,
+  FileText,
   Star,
-  MessageSquare,
-  TrendingUp,
-  Eye,
-  Calendar,
-  Plus
+  Mail
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -21,62 +22,47 @@ interface DashboardStats {
   teamMembers: number;
   testimonials: number;
   contactMessages: number;
-  newMessages: number;
+  blogPosts: number;
+  heroSlides: number;
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     services: 0,
     projects: 0,
     teamMembers: 0,
     testimonials: 0,
     contactMessages: 0,
-    newMessages: 0
+    blogPosts: 0,
+    heroSlides: 0
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [servicesRes, projectsRes, contactRes, teamRes, testimonialsRes] = await Promise.all([
+        const [servicesRes, projectsRes, contactRes, teamRes, testimonialsRes, blogRes, heroRes] = await Promise.all([
           apiClient.getServices(),
           apiClient.getProjects(),
           apiClient.getContactSubmissions(),
           apiClient.getTeamMembers(),
-          apiClient.getTestimonials()
+          apiClient.getTestimonials(),
+          apiClient.getBlogPosts(),
+          apiClient.getHeroSlides()
         ]);
-
-        console.log('Dashboard API responses:', {
-          services: servicesRes,
-          projects: projectsRes,
-          contacts: contactRes,
-          team: teamRes,
-          testimonials: testimonialsRes
-        });
-
-        // Count new/unread contact messages
-        const contacts = contactRes.data || [];
-        const newMessages = contacts.filter(contact => contact.status === 'UNREAD').length;
 
         setStats({
           services: servicesRes.data?.length || 0,
           projects: projectsRes.data?.length || 0,
           teamMembers: teamRes.data?.length || 0,
           testimonials: testimonialsRes.data?.length || 0,
-          contactMessages: contacts.length,
-          newMessages: newMessages
+          contactMessages: contactRes.data?.length || 0,
+          blogPosts: blogRes.data?.length || 0,
+          heroSlides: heroRes.data?.length || 0
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
-        // Set default values to prevent UI from breaking
-        setStats({
-          services: 0,
-          projects: 0,
-          teamMembers: 0,
-          testimonials: 0,
-          contactMessages: 0,
-          newMessages: 0
-        });
       } finally {
         setLoading(false);
       }
@@ -86,287 +72,91 @@ export default function AdminDashboard() {
   }, []);
 
   const statsCards = [
-    {
-      name: 'Total Services',
-      value: stats.services,
-      icon: Wrench,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
-    },
-    {
-      name: 'Active Projects',
-      value: stats.projects,
-      icon: FolderOpen,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
-    },
-    {
-      name: 'Team Members',
-      value: stats.teamMembers,
-      icon: Users,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
-    },
-    {
-      name: 'Contact Messages',
-      value: stats.contactMessages,
-      icon: MessageSquare,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-50',
-      textColor: 'text-indigo-600',
-    },
+    { name: 'Total', subtitle: 'Services', value: stats.services, icon: Wrench, color: 'from-blue-500 to-blue-600', badge: 'Active', badgeColor: 'bg-blue-100 text-blue-800', href: '/admin/services' },
+    { name: 'Active', subtitle: 'Projects', value: stats.projects, icon: FolderOpen, color: 'from-green-500 to-green-600', badge: 'Live', badgeColor: 'bg-green-100 text-green-800', href: '/admin/projects' },
+    { name: 'Team', subtitle: 'Members', value: stats.teamMembers, icon: Users, color: 'from-purple-500 to-purple-600', badge: 'Team', badgeColor: 'bg-purple-100 text-purple-800', href: '/admin/team' },
+    { name: 'Contact', subtitle: 'Messages', value: stats.contactMessages, icon: Mail, color: 'from-indigo-500 to-indigo-600', badge: 'Inbox', badgeColor: 'bg-orange-100 text-orange-800', href: '/admin/contact' },
   ];
 
-  const recentActivities = [
-    {
-      id: 1,
-      action: 'New service added',
-      details: 'Property Valuation service was created',
-      time: '2 hours ago',
-      icon: Wrench,
-      color: 'text-blue-600',
-    },
-    {
-      id: 2,
-      action: 'Project updated',
-      details: 'Modern Office Complex project status changed',
-      time: '4 hours ago',
-      icon: FolderOpen,
-      color: 'text-green-600',
-    },
-    {
-      id: 3,
-      action: 'New testimonial',
-      details: 'Client review from John Smith added',
-      time: '1 day ago',
-      icon: Star,
-      color: 'text-yellow-600',
-    },
+  const quickActions = [
+    { name: 'Add Service', description: 'Create new service', icon: Wrench, color: 'from-blue-500 to-blue-600', hoverColor: 'hover:border-blue-300 hover:bg-blue-50', onClick: () => router.push('/admin/services') },
+    { name: 'New Project', description: 'Add portfolio item', icon: FolderOpen, color: 'from-green-500 to-green-600', hoverColor: 'hover:border-green-300 hover:bg-green-50', onClick: () => router.push('/admin/projects') },
+    { name: 'Write Blog', description: 'Create article', icon: FileText, color: 'from-purple-500 to-purple-600', hoverColor: 'hover:border-purple-300 hover:bg-purple-50', onClick: () => router.push('/admin/blog') },
+    { name: 'Add Member', description: 'Invite team member', icon: Users, color: 'from-orange-500 to-orange-600', hoverColor: 'hover:border-orange-300 hover:bg-orange-50', onClick: () => router.push('/admin/team') },
+    { name: 'Hero Slide', description: 'Add homepage slide', icon: Sliders, color: 'from-pink-500 to-pink-600', hoverColor: 'hover:border-pink-300 hover:bg-pink-50', onClick: () => router.push('/admin/hero-slides') },
+    { name: 'Media Upload', description: 'Add images/files', icon: Image, color: 'from-teal-500 to-teal-600', hoverColor: 'hover:border-teal-300 hover:bg-teal-50', onClick: () => router.push('/admin/media') },
+  ];
+
+  const contentOverview = [
+    { name: 'Hero Slides', count: stats.heroSlides, icon: Sliders, color: 'from-pink-500 to-pink-600', href: '/admin/hero-slides' },
+    { name: 'Blog Posts', count: stats.blogPosts, icon: FileText, color: 'from-purple-500 to-purple-600', href: '/admin/blog' },
+    { name: 'Testimonials', count: stats.testimonials, icon: Star, color: 'from-yellow-500 to-yellow-600', href: '/admin/testimonials' },
   ];
 
   return (
     <AdminDashboardLayout title="Dashboard">
-      <div className="space-y-4">
-        {/* Welcome Section */}
-        <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-2xl p-5 lg:p-6 text-white overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
-          <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-white/5 rounded-full"></div>
-          <div className="relative z-10">
-            <div className="flex items-center mb-2">
-              <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center mr-3">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl lg:text-2xl font-bold mb-1">Welcome Back, Admin!</h1>
-                <p className="text-blue-100 text-sm lg:text-base">Forever Shine Engineering Dashboard</p>
-              </div>
+      <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-8 text-white">
+          <h1 className="text-3xl font-bold mb-2">Welcome to Your Dashboard</h1>
+          <p className="text-blue-100 text-lg">Manage your website content efficiently from one place</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {loading ? Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-24"></div>
             </div>
-            <p className="text-blue-50 text-sm lg:text-base leading-relaxed">
-              Manage your website content, track performance, and oversee all business operations.
-            </p>
+          )) : statsCards.map((stat, idx) => {
+            const Icon = stat.icon;
+            return (
+              <button key={idx} onClick={() => router.push(stat.href)} className="bg-white rounded-lg shadow hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 hover:border-blue-300 hover:-translate-y-1 group text-left">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={'p-3 rounded-lg bg-gradient-to-r ' + stat.color}><Icon className="h-6 w-6 text-white" /></div>
+                  <span className={'text-xs font-semibold px-2.5 py-0.5 rounded-full ' + stat.badgeColor}>{stat.badge}</span>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                <div className="flex items-center justify-between">
+                  <div><p className="text-sm font-medium text-gray-700">{stat.name}</p><p className="text-xs text-gray-500">{stat.subtitle}</p></div>
+                  <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6"><h2 className="text-xl font-bold text-gray-900">Content Overview</h2></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {contentOverview.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <button key={idx} onClick={() => router.push(item.href)} className="flex items-center justify-between p-4 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all group">
+                  <div className="flex items-center space-x-3">
+                    <div className={'p-2 rounded-lg bg-gradient-to-r ' + item.color}><Icon className="h-5 w-5 text-white" /></div>
+                    <div className="text-left"><p className="text-sm font-medium text-gray-700">{item.name}</p><p className="text-lg font-bold text-gray-900">{item.count}</p></div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                </button>
+              );
+            })}
           </div>
         </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statsCards.map((card, index) => (
-            <div key={card.name} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className={`p-4 rounded-2xl bg-gradient-to-r shadow-md group-hover:shadow-lg transition-shadow ${
-                    index === 0 ? 'from-blue-500 to-blue-600' :
-                    index === 1 ? 'from-green-500 to-green-600' :
-                    index === 2 ? 'from-purple-500 to-purple-600' :
-                    'from-indigo-500 to-indigo-600'
-                  }`}>
-                    <card.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{card.name.split(' ')[0]}</p>
-                    <div className="text-3xl font-bold text-gray-900 mt-1">
-                      {loading ? (
-                        <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
-                      ) : (
-                        card.value
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{card.name.split(' ').slice(1).join(' ')}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    index === 0 ? 'bg-blue-100 text-blue-800' :
-                    index === 1 ? 'bg-green-100 text-green-800' :
-                    index === 2 ? 'bg-purple-100 text-purple-800' :
-                    'bg-orange-100 text-orange-800'
-                  }`}>
-                    {index === 0 ? 'Active' : index === 1 ? 'Live' : index === 2 ? 'Team' : 'Reviews'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Recent Activity */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-gray-500 font-medium">Live Updates</span>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flow-root">
-                <ul className="-mb-8">
-                  {recentActivities.map((activity, activityIdx) => (
-                    <li key={activity.id}>
-                      <div className="relative pb-8">
-                        {activityIdx !== recentActivities.length - 1 ? (
-                          <span
-                            className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gradient-to-b from-blue-200 to-transparent"
-                            aria-hidden="true"
-                          />
-                        ) : null}
-                        <div className="relative flex space-x-4">
-                          <div>
-                            <span className={`h-10 w-10 rounded-xl bg-gradient-to-r flex items-center justify-center shadow-md ${
-                              activityIdx === 0 ? 'from-blue-500 to-blue-600' :
-                              activityIdx === 1 ? 'from-green-500 to-green-600' :
-                              'from-purple-500 to-purple-600'
-                            }`}>
-                              <activity.icon className="h-5 w-5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 pt-1.5">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <p className="text-sm text-gray-900 font-semibold">{activity.action}</p>
-                                <p className="text-sm text-gray-600 mt-1">{activity.details}</p>
-                              </div>
-                              <div className="text-right ml-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                  {activity.time}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
+            <p className="text-sm text-gray-600">Jump directly to common tasks</p>
           </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">Quick Actions</h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Plus className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <button className="group flex flex-col items-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <Wrench className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-blue-700">Add Service</span>
-                  <span className="text-xs text-gray-500 mt-1">Create new service</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {quickActions.map((action, idx) => {
+              const Icon = action.icon;
+              return (
+                <button key={idx} onClick={action.onClick} className={'group flex flex-col items-center p-4 bg-gradient-to-br from-white to-gray-50 rounded-lg border-2 border-gray-200 ' + action.hoverColor + ' transition-all duration-200 hover:shadow-lg hover:-translate-y-1'}>
+                  <div className={'p-3 rounded-lg bg-gradient-to-r ' + action.color + ' mb-3 transform group-hover:scale-110 transition-transform'}><Icon className="h-6 w-6 text-white" /></div>
+                  <span className="text-sm font-semibold text-gray-800 text-center">{action.name}</span>
+                  <span className="text-xs text-gray-600 mt-1 text-center">{action.description}</span>
                 </button>
-                <button className="group flex flex-col items-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 transform hover:scale-105">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <FolderOpen className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-green-700">New Project</span>
-                  <span className="text-xs text-gray-500 mt-1">Add portfolio item</span>
-                </button>
-                <button className="group flex flex-col items-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 transform hover:scale-105">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <MessageSquare className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-purple-700">Write Blog</span>
-                  <span className="text-xs text-gray-500 mt-1">Create article</span>
-                </button>
-                <button className="group flex flex-col items-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-orange-300 hover:bg-orange-50 transition-all duration-300 transform hover:scale-105">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow">
-                    <Users className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-orange-700">Add Member</span>
-                  <span className="text-xs text-gray-500 mt-1">Invite team member</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Website Analytics */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">Website Analytics</h3>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-xs text-gray-500 font-medium">Last 30 days</span>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all duration-300">
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Eye className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900 mb-1">12,459</p>
-                <p className="text-sm font-semibold text-blue-700">Total Page Views</p>
-                <div className="mt-2 flex items-center justify-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    ↗ +15.3%
-                  </span>
-                </div>
-              </div>
-              <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-300">
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow">
-                  <TrendingUp className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900 mb-1">2,847</p>
-                <p className="text-sm font-semibold text-green-700">Unique Visitors</p>
-                <div className="mt-2 flex items-center justify-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    ↗ +8.7%
-                  </span>
-                </div>
-              </div>
-              <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-all duration-300">
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Calendar className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900 mb-1">3:24</p>
-                <p className="text-sm font-semibold text-purple-700">Avg. Session</p>
-                <div className="mt-2 flex items-center justify-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    ↗ +2.1%
-                  </span>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>

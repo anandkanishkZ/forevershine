@@ -109,12 +109,25 @@ export async function POST(
       },
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
       console.error('Backend API error:', response.status, response.statusText);
-      throw new Error(`Backend API error: ${response.status}`);
+      
+      // If slide not found, return 404 but don't throw error
+      if (response.status === 404) {
+        return NextResponse.json(
+          { success: false, message: 'Hero slide not found' },
+          { status: 404 }
+        );
+      }
+      
+      return NextResponse.json(
+        { success: false, message: data.message || 'Failed to track view' },
+        { status: response.status }
+      );
     }
 
-    const data = await response.json();
     console.log('View tracked successfully for slide:', params.id);
     return NextResponse.json(data);
   } catch (error) {

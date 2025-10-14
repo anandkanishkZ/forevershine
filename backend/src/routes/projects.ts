@@ -3,6 +3,11 @@ import { prisma } from '../utils/prisma';
 import { ApiResponse, ProjectData, PaginationQuery, AuthRequest } from '../types';
 import { body, validationResult } from 'express-validator';
 import { authenticate, authorize } from '../middleware/authMiddleware';
+import { 
+  notifyNewProject, 
+  notifyProjectUpdated, 
+  notifyProjectStatusChanged 
+} from '../utils/notificationService';
 
 const router = Router();
 
@@ -188,6 +193,13 @@ router.post('/',
       data: projectData
     });
 
+    // Create notification for new project
+    await notifyNewProject({
+      title: project.title,
+      id: project.id,
+      createdById: req.user?.id,
+    });
+
     res.status(201).json({
       success: true,
       message: 'Project created successfully',
@@ -249,6 +261,10 @@ router.put('/:id',
         });
       }
 
+      // Track status change for notification
+      const statusChanged = updateData.status && updateData.status !== existingProject.status;
+      const oldStatus = existingProject.status;
+
       const updatedProject = await prisma.project.update({
         where: { id },
         data: {
@@ -257,6 +273,24 @@ router.put('/:id',
           startDate: updateData.startDate ? new Date(updateData.startDate) : undefined
         }
       });
+
+      // Create notifications based on changes
+      if (statusChanged) {
+        await notifyProjectStatusChanged({
+          title: updatedProject.title,
+          id: updatedProject.id,
+          oldStatus,
+          newStatus: updatedProject.status,
+        });
+      } else {
+        // General update notification
+        const changes = Object.keys(updateData).filter(key => key !== 'id');
+        await notifyProjectUpdated({
+          title: updatedProject.title,
+          id: updatedProject.id,
+          changes,
+        });
+      }
 
       res.json({
         success: true,
