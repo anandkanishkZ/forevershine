@@ -8,6 +8,7 @@ import {
   notifyProjectUpdated, 
   notifyProjectStatusChanged 
 } from '../utils/notificationService';
+import { auditCreate, auditUpdate, auditDelete } from '../middleware/auditLog';
 
 const router = Router();
 
@@ -102,6 +103,7 @@ router.get('/:id', async (req: Request, res: Response<ApiResponse>) => {
 router.post('/', 
   authenticate,
   authorize(['ADMIN', 'SUPER_ADMIN']),
+  auditCreate,
   [
     body('title').notEmpty().withMessage('Title is required'),
     body('slug').notEmpty().withMessage('Slug is required'),
@@ -229,6 +231,7 @@ router.post('/',
 router.put('/:id',
   authenticate,
   authorize(['ADMIN', 'SUPER_ADMIN']),
+  auditUpdate,
   [
     body('title').optional().notEmpty().withMessage('Title cannot be empty'),
     body('category').optional().notEmpty().withMessage('Category cannot be empty'),
@@ -312,6 +315,7 @@ router.put('/:id',
 router.delete('/:id',
   authenticate,
   authorize(['ADMIN', 'SUPER_ADMIN']),
+  auditDelete,
   async (req: AuthRequest, res: Response<ApiResponse>) => {
     try {
       const { id } = req.params;

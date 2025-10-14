@@ -8,6 +8,9 @@ import path from 'path';
 // Load environment variables
 dotenv.config();
 
+// Import logger
+import logger, { logInfo, logError } from './utils/logger';
+
 // Import routes
 import authRoutes from './routes/auth';
 import serviceRoutes from './routes/services';
@@ -30,9 +33,17 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { apiLimiter } from './middleware/rateLimiter';
 import { csrfProtection, csrfErrorHandler } from './middleware/csrfProtection';
+import requestLogger from './middleware/requestLogger';
+import httpsMiddleware from './middleware/httpsEnforcement';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// HTTPS enforcement (redirects HTTP to HTTPS in production)
+app.use(httpsMiddleware);
+
+// HTTP Request logging (must be early in middleware chain)
+app.use(requestLogger);
 
 // Security middleware
 app.use(helmet({
@@ -105,8 +116,22 @@ app.use(notFound);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
-  console.log(`📁 Upload path: ${process.env.UPLOAD_PATH}`);
+  logInfo(`🚀 Server running on port ${PORT}`);
+  logInfo(`📊 Environment: ${process.env.NODE_ENV}`);
+  logInfo(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
+  logInfo(`📁 Upload path: ${process.env.UPLOAD_PATH}`);
+  logInfo(`🔒 HTTPS enforcement: ${process.env.NODE_ENV === 'production' ? 'enabled' : 'disabled'}`);
+  logInfo(`📝 Logging level: ${process.env.LOG_LEVEL || 'info'}`);
+  
+  // Log security features enabled
+  logInfo('✅ Security features enabled:');
+  logInfo('   - Rate limiting');
+  logInfo('   - CSRF protection');
+  logInfo('   - HttpOnly cookies');
+  logInfo('   - Request logging');
+  logInfo('   - Audit logging');
+  if (process.env.NODE_ENV === 'production') {
+    logInfo('   - HTTPS enforcement');
+    logInfo('   - HSTS headers');
+  }
 });
