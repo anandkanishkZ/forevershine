@@ -86,28 +86,28 @@ const ServicesCarousel: React.FC<ServicesCarouselProps> = ({
         loop={services.length > 2}
         effect="coverflow"
         coverflowEffect={{
-          rotate: 10,
+          rotate: 8,
           stretch: 0,
-          depth: 100,
+          depth: 80,
           modifier: 1,
-          slideShadows: true,
+          slideShadows: false,
         }}
         breakpoints={{
           640: {
             slidesPerView: 1,
-            spaceBetween: 20,
+            spaceBetween: 15,
           },
           768: {
             slidesPerView: 2,
-            spaceBetween: 30,
+            spaceBetween: 20,
           },
           1024: {
             slidesPerView: 3,
-            spaceBetween: 30,
+            spaceBetween: 25,
           },
           1280: {
             slidesPerView: 3,
-            spaceBetween: 40,
+            spaceBetween: 30,
           },
         }}
         className="services-swiper"
@@ -117,9 +117,10 @@ const ServicesCarousel: React.FC<ServicesCarouselProps> = ({
             <ServiceCard
               title={service.title}
               description={service.description}
-              features={service.features}
               iconName={service.icon}
-              link={`/services/${service.id}`}
+              link="/services"
+              showFeatures={false}
+              showLearnMore={false}
             />
           </SwiperSlide>
         ))}
@@ -147,14 +148,14 @@ const ServicesCarousel: React.FC<ServicesCarouselProps> = ({
       <style jsx global>{`
         .services-swiper .swiper-pagination {
           position: relative !important;
-          margin-top: 2rem;
+          margin-top: 1.5rem;
         }
         
         .services-swiper .swiper-pagination-bullet {
           background-color: #e5e7eb;
           opacity: 1;
-          width: 12px;
-          height: 12px;
+          width: 10px;
+          height: 10px;
         }
         
         .services-swiper .swiper-pagination-bullet-active {
@@ -168,7 +169,7 @@ const ServicesCarousel: React.FC<ServicesCarouselProps> = ({
         }
         
         .services-carousel-container {
-          padding: 0 3rem;
+          padding: 0 2rem;
         }
         
         @media (max-width: 768px) {

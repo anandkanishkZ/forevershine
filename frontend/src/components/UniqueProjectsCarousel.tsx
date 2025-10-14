@@ -194,6 +194,15 @@ const UniqueProjectsCarousel: React.FC<UniqueProjectsCarouselProps> = ({
                     transition={{ duration: 0.8, ease: "easeInOut" }}
                     onHoverStart={() => setHoveredProject(project.id)}
                     onHoverEnd={() => setHoveredProject(null)}
+                    onClick={() => {
+                      if (isCenter) {
+                        // Navigate to project details if it's the center card
+                        window.location.href = `/projects/${project.slug}`;
+                      } else {
+                        // Otherwise, make it the center card
+                        setCurrentIndex(index);
+                      }
+                    }}
                   >
                     <ProjectCard3D 
                       project={project} 
@@ -348,10 +357,19 @@ const ProjectCard3D: React.FC<{
           </motion.h3>
           <p className="text-blue-200 text-sm mb-1">{project.category}</p>
           {project.location && (
-            <div className="flex items-center text-xs text-gray-300">
+            <div className="flex items-center text-xs text-gray-300 mb-2">
               <MapPin className="w-3 h-3 mr-1" />
               {project.location}
             </div>
+          )}
+          {isCenter && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xs text-blue-200 mt-2"
+            >
+              Click to view details or hover to flip →
+            </motion.div>
           )}
         </div>
       </div>
@@ -376,18 +394,24 @@ const ProjectCard3D: React.FC<{
         </div>
       )}
       <div className="flex gap-2 mt-auto">
+        <Link href={`/projects/${project.slug}`}>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-sm hover:bg-white/30 transition-all duration-300"
+          >
+            <Eye className="w-4 h-4" />
+            View Details
+          </motion.button>
+        </Link>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-sm"
-        >
-          <Eye className="w-4 h-4" />
-          View
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-sm"
+          className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-sm hover:bg-white/30 transition-all duration-300"
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent card click
+            // Add to favorites functionality here
+          }}
         >
           <Heart className="w-4 h-4" />
           Like
@@ -399,87 +423,99 @@ const ProjectCard3D: React.FC<{
 
 // Grid Project Card Component
 const ProjectCardGrid: React.FC<{ project: Project }> = ({ project }) => (
-  <motion.div
-    whileHover={{ y: -8, scale: 1.02 }}
-    className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-  >
-    <div className="relative h-48">
-      {project.imageUrl && (
-        <Image
-          src={project.imageUrl}
-          alt={project.title}
-          fill
-          className="object-cover"
-        />
-      )}
-      <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs">
-        {project.category}
-      </div>
-    </div>
-    <div className="p-6">
-      <h3 className="font-bold text-lg mb-2">{project.title}</h3>
-      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-        {project.shortDescription || project.description}
-      </p>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button className="text-gray-400 hover:text-red-500 transition-colors">
-            <Heart className="w-4 h-4" />
-          </button>
-          <button className="text-gray-400 hover:text-blue-500 transition-colors">
-            <Share2 className="w-4 h-4" />
-          </button>
-        </div>
-        <Link
-          href={`/projects/${project.slug}`}
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-        >
-          View Details
-          <ExternalLink className="w-3 h-3" />
-        </Link>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// Stack Project Card Component
-const ProjectCardStack: React.FC<{ project: Project }> = ({ project }) => (
-  <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-    <div className="flex items-center gap-4 mb-4">
-      <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+  <Link href={`/projects/${project.slug}`} className="block h-full">
+    <motion.div
+      whileHover={{ y: -8, scale: 1.02 }}
+      className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full"
+    >
+      <div className="relative h-48">
         {project.imageUrl && (
           <Image
             src={project.imageUrl}
             alt={project.title}
-            width={64}
-            height={64}
-            className="object-cover w-full h-full"
+            fill
+            className="object-cover"
           />
         )}
-      </div>
-      <div className="flex-1">
-        <h3 className="font-bold text-lg">{project.title}</h3>
-        <p className="text-blue-600 text-sm">{project.category}</p>
-      </div>
-    </div>
-    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-      {project.shortDescription || project.description}
-    </p>
-    <div className="flex items-center justify-between">
-      {project.location && (
-        <div className="flex items-center text-xs text-gray-500">
-          <MapPin className="w-3 h-3 mr-1" />
-          {project.location}
+        <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs">
+          {project.category}
         </div>
-      )}
-      <Link
-        href={`/projects/${project.slug}`}
-        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-      >
-        Learn More →
-      </Link>
+      </div>
+      <div className="p-6">
+        <h3 className="font-bold text-lg mb-2">{project.title}</h3>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          {project.shortDescription || project.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              className="text-gray-400 hover:text-red-500 transition-colors"
+              onClick={(e) => {
+                e.preventDefault(); // Prevent navigation
+                e.stopPropagation();
+                // Add to favorites functionality here
+              }}
+            >
+              <Heart className="w-4 h-4" />
+            </button>
+            <button 
+              className="text-gray-400 hover:text-blue-500 transition-colors"
+              onClick={(e) => {
+                e.preventDefault(); // Prevent navigation
+                e.stopPropagation();
+                // Share functionality here
+              }}
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
+            View Details
+            <ExternalLink className="w-3 h-3" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  </Link>
+);
+
+// Stack Project Card Component
+const ProjectCardStack: React.FC<{ project: Project }> = ({ project }) => (
+  <Link href={`/projects/${project.slug}`} className="block">
+    <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 cursor-pointer hover:shadow-2xl transition-all duration-300">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+          {project.imageUrl && (
+            <Image
+              src={project.imageUrl}
+              alt={project.title}
+              width={64}
+              height={64}
+              className="object-cover w-full h-full"
+            />
+          )}
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-lg">{project.title}</h3>
+          <p className="text-blue-600 text-sm">{project.category}</p>
+        </div>
+      </div>
+      <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        {project.shortDescription || project.description}
+      </p>
+      <div className="flex items-center justify-between">
+        {project.location && (
+          <div className="flex items-center text-xs text-gray-500">
+            <MapPin className="w-3 h-3 mr-1" />
+            {project.location}
+          </div>
+        )}
+        <div className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          Learn More →
+        </div>
+      </div>
     </div>
-  </div>
+  </Link>
 );
 
 export default UniqueProjectsCarousel;

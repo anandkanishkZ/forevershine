@@ -2,7 +2,6 @@
 
 import HeroSlider from '@/components/HeroSlider';
 import SectionTitle from '@/components/SectionTitle';
-import ServiceCard from '@/components/ServiceCard';
 import ServicesCarousel from '@/components/ServicesCarousel';
 import ProjectCard from '@/components/ProjectCard';
 import UniqueProjectsCarousel from '@/components/UniqueProjectsCarousel';
