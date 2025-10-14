@@ -30,7 +30,7 @@ router.get('/public', async (req: Request, res: Response<ApiResponse>) => {
         where,
         include: {
           author: {
-            select: { id: true, email: true }
+            select: { id: true, email: true, name: true, profilePhoto: true }
           }
         },
         orderBy: { publishedAt: 'desc' },
@@ -73,7 +73,7 @@ router.get('/public/:slug', async (req: Request, res: Response<ApiResponse>) => 
       },
       include: {
         author: {
-          select: { id: true, email: true }
+          select: { id: true, email: true, name: true, profilePhoto: true }
         }
       }
     });
@@ -124,7 +124,7 @@ router.get('/', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req: A
         where,
         include: {
           author: {
-            select: { id: true, email: true }
+            select: { id: true, email: true, name: true, profilePhoto: true }
           }
         },
         orderBy: { createdAt: 'desc' },
@@ -163,7 +163,7 @@ router.get('/:id', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req
       where: { id },
       include: {
         author: {
-          select: { id: true, email: true }
+          select: { id: true, email: true, name: true, profilePhoto: true }
         }
       }
     });
@@ -256,7 +256,7 @@ router.post('/', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req: 
       data: postData,
       include: {
         author: {
-          select: { id: true, email: true }
+          select: { id: true, email: true, name: true, profilePhoto: true }
         }
       }
     });
@@ -346,7 +346,7 @@ router.put('/:id', authenticate, authorize(['ADMIN', 'SUPER_ADMIN']), async (req
       data: updateData,
       include: {
         author: {
-          select: { id: true, email: true }
+          select: { id: true, email: true, name: true, profilePhoto: true }
         }
       }
     });

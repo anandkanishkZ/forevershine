@@ -124,7 +124,7 @@ export default async function BlogPage() {
                     excerpt={post.excerpt || BlogApiClient.getExcerpt(post.content)}
                     image={post.imageUrl || ''}
                     date={post.publishedAt || post.createdAt}
-                    author={post.author.email}
+                    author={post.author}
                     slug={post.slug}
                   />
                 ))}

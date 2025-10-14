@@ -18,6 +18,21 @@ const FeaturedBlogBanner: React.FC<FeaturedBlogBannerProps> = ({ post }) => {
     });
   };
 
+  const getAuthorInitials = (name?: string, email?: string) => {
+    if (name) {
+      const names = name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return email ? email.substring(0, 2).toUpperCase() : 'FS';
+  };
+
+  const getAuthorName = () => {
+    return post.author.name || post.author.email.split('@')[0];
+  };
+
   const excerpt = post.excerpt || post.content.substring(0, 150) + '...';
 
   return (
@@ -57,14 +72,29 @@ const FeaturedBlogBanner: React.FC<FeaturedBlogBannerProps> = ({ post }) => {
             <div className="p-6 lg:p-8 lg:col-span-3 flex flex-col justify-center">
               <div className="space-y-4">
                 {/* Meta Information */}
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="h-3 w-3 text-brand-blue" />
-                    <span className="text-xs">{post.publishedAt ? formatDate(post.publishedAt) : 'Draft'}</span>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-brand-blue flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">{post.publishedAt ? formatDate(post.publishedAt) : 'Draft'}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <User className="h-3 w-3 text-brand-blue" />
-                    <span className="text-xs">Admin</span>
+                  
+                  {/* Author with Avatar */}
+                  <div className="flex items-center gap-2">
+                    {post.author.profilePhoto ? (
+                      <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-blue-100">
+                        <Image 
+                          src={getValidImageUrl(post.author.profilePhoto)} 
+                          alt={getAuthorName()}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[11px] font-bold border-2 border-blue-100">
+                        {getAuthorInitials(post.author.name, post.author.email)}
+                      </div>
+                    )}
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">{getAuthorName()}</span>
                   </div>
                 </div>
 

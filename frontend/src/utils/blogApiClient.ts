@@ -18,6 +18,8 @@ export interface BlogPost {
   author: {
     id: string;
     email: string;
+    name?: string;
+    profilePhoto?: string;
   };
 }
 

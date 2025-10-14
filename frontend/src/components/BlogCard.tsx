@@ -9,7 +9,11 @@ interface BlogCardProps {
   excerpt: string;
   image: string;
   date: string;
-  author: string;
+  author: {
+    name?: string;
+    email: string;
+    profilePhoto?: string;
+  };
   slug: string;
 }
 
@@ -27,6 +31,21 @@ const BlogCard: React.FC<BlogCardProps> = ({
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const getAuthorInitials = (name?: string, email?: string) => {
+    if (name) {
+      const names = name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return email ? email.substring(0, 2).toUpperCase() : 'FS';
+  };
+
+  const getAuthorName = () => {
+    return author.name || author.email.split('@')[0];
   };
 
   return (
@@ -55,14 +74,29 @@ const BlogCard: React.FC<BlogCardProps> = ({
       
       <div className="p-6">
         {/* Meta Information */}
-        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4 text-brand-blue" />
-            <span>{formatDate(date)}</span>
+        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-brand-blue flex-shrink-0" />
+            <span className="text-xs sm:text-sm">{formatDate(date)}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <User className="h-4 w-4 text-brand-blue" />
-            <span>{author}</span>
+          
+          {/* Author with Avatar */}
+          <div className="flex items-center gap-2">
+            {author.profilePhoto ? (
+              <div className="relative w-6 h-6 rounded-full overflow-hidden border-2 border-blue-100">
+                <Image 
+                  src={getValidImageUrl(author.profilePhoto)} 
+                  alt={getAuthorName()}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold border-2 border-blue-100">
+                {getAuthorInitials(author.name, author.email)}
+              </div>
+            )}
+            <span className="text-xs sm:text-sm font-medium text-gray-700">{getAuthorName()}</span>
           </div>
         </div>
 

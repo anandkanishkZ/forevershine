@@ -233,32 +233,33 @@ export default function HeroSlider() {
             ></div>
           </div>
 
-          <div className="container mx-auto px-4 h-full relative z-10">
-            <div className="flex items-center h-full pt-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full relative z-10">
+            <div className="flex items-center h-full pt-16 sm:pt-20">
               <div 
-                className={`max-w-4xl ${
+                className={`max-w-4xl w-full ${
                   slide.textAlign === 'center' ? 'mx-auto text-center' :
                   slide.textAlign === 'right' ? 'ml-auto text-right' :
                   'text-left'
                 }`}
                 style={{ color: slide.textColor }}
               >
-                <h1 className="pt-6 pb-2 text-3xl font-bold md:text-5xl leading-tight animate-fade-in">
+                <h1 className="pt-4 sm:pt-6 pb-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight animate-fade-in">
                   {slide.title}
                 </h1>
                 {slide.subtitle && (
-                  <h2 className="inline-block mb-4 text-4xl md:text-5xl text-brand-blue animate-fade-in delay-200">
+                  <h2 className="inline-block mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl text-brand-blue animate-fade-in delay-200">
                     {slide.subtitle}
                   </h2>
                 )}
-                <p className="max-w-2xl pb-12 text-md md:text-lg text-gray-200 leading-relaxed animate-fade-in delay-300">
+                <p className="hidden sm:block max-w-full sm:max-w-2xl pb-8 sm:pb-12 text-sm sm:text-base md:text-lg text-gray-200 leading-relaxed animate-fade-in delay-300">
                   {slide.description}
                 </p>
-                <div className="flex flex-wrap gap-4 animate-fade-in delay-500">
+                <div className="hidden sm:flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in delay-500">
                   {slide.primaryButtonText && slide.primaryButtonUrl && (
                     <Button 
                       href={slide.primaryButtonUrl}
                       variant="primary"
+                      className="w-full sm:w-auto"
                       onClick={() => handleButtonClick(slide.id, slide.primaryButtonUrl!)}
                     >
                       {slide.primaryButtonText}
@@ -268,6 +269,7 @@ export default function HeroSlider() {
                     <Button 
                       href={slide.secondaryButtonUrl}
                       variant="outline"
+                      className="w-full sm:w-auto"
                       onClick={() => handleButtonClick(slide.id, slide.secondaryButtonUrl!)}
                     >
                       {slide.secondaryButtonText}
@@ -282,14 +284,14 @@ export default function HeroSlider() {
 
       {/* Navigation Dots */}
       {slides.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 currentSlide === index
-                  ? 'bg-brand-blue w-6'
+                  ? 'bg-brand-blue w-6 sm:w-8'
                   : 'bg-white/60 hover:bg-white/80'
               }`}
               aria-label={`Go to slide ${index + 1}`}

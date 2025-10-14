@@ -76,21 +76,21 @@ export default function Home() {
       <HeroSlider />
 
       {/* About Section */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <section className="py-12 sm:py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Left Content */}
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <span className="inline-block px-4 py-2 bg-brand-red/10 text-brand-red font-semibold text-sm rounded-full">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-brand-red/10 text-brand-red font-semibold text-xs sm:text-sm rounded-full">
                   ABOUT {companyName.toUpperCase()}
                 </span>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
                   {companyTagline}{' '}
                   <span className="text-brand-blue">Property Valuation</span>{' '}
                   & Engineering Consultancy
                 </h2>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
                   {companyDescription || `${companyName} specializes in professional property valuation services 
                   for banking institutions across Nepal. We provide comprehensive engineering consultancy, 
                   site supervision, and running bill verification services to major banks and financial institutions.`}
@@ -98,52 +98,50 @@ export default function Home() {
               </div>
 
               {/* Key Features */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-brand-blue rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       Banking Sector Expertise
                     </h4>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                       Nepal's leading property valuation firm trusted by major banks and financial institutions
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-red rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
+                <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-brand-red rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       Professional Certification
                     </h4>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                       Professional engineers delivering accurate assessments for critical lending decisions
                     </p>
                   </div>
                 </div>
-
-
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Button href="/about" variant="primary" className="flex-shrink-0">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
+                <Button href="/about" variant="primary" className="w-full sm:w-auto">
                   Learn More About Us
                 </Button>
-                <Button href="/services" variant="outline" className="flex-shrink-0">
+                <Button href="/services" variant="outline" className="w-full sm:w-auto">
                   Our Services
                 </Button>
               </div>
             </div>
 
             {/* Right Image */}
-            <div className="relative">
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+            <div className="relative mt-8 lg:mt-0">
+              <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Construction Site Supervision - Forever Shine Engineering"
@@ -156,15 +154,15 @@ export default function Home() {
               </div>
               
               {/* Floating Stats Card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-6 border">
-                <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 bg-white rounded-lg sm:rounded-xl shadow-xl p-4 sm:p-6 border">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-brand-red">100+</div>
-                    <div className="text-xs text-gray-600">Properties Valued</div>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-red">100+</div>
+                    <div className="text-[10px] sm:text-xs text-gray-600 whitespace-nowrap">Properties Valued</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-brand-blue">3+</div>
-                    <div className="text-xs text-gray-600">Banking Partners</div>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-blue">3+</div>
+                    <div className="text-[10px] sm:text-xs text-gray-600 whitespace-nowrap">Banking Partners</div>
                   </div>
                 </div>
               </div>
@@ -174,8 +172,8 @@ export default function Home() {
       </section>
 
       {/* Services Carousel Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
           <SectionTitle
             title="Our Services"
             subtitle="We offer a comprehensive range of engineering and construction services."
@@ -187,32 +185,32 @@ export default function Home() {
             showPagination={true}
             autoplay={true}
             limit={6}
-            className="mt-12"
+            className="mt-8 sm:mt-12"
           />
         </div>
       </section>
 
       {/* Banking Partners Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
           <SectionTitle
             title="Banking Partners"
             subtitle="Trusted by leading financial institutions"
             center={true}
           />
           
-          <div className="mt-12">
+          <div className="mt-8 sm:mt-12">
             {/* Logo Carousel */}
             <div className="relative max-w-6xl mx-auto">
-              <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-xl p-12">
-                <div className="flex items-center justify-center space-x-16 animate-carousel">
+              <div className="overflow-hidden rounded-xl sm:rounded-2xl bg-gray-50 shadow-xl p-6 sm:p-8 md:p-12">
+                <div className="flex items-center justify-center space-x-8 sm:space-x-12 md:space-x-16 animate-carousel">
                   {/* First set of logos */}
-                  <div className="flex items-center justify-center space-x-16 min-w-full">
+                  <div className="flex items-center justify-center space-x-8 sm:space-x-12 md:space-x-16 min-w-full">
                     <a 
                       href="https://everestbankltd.com/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/everest-bank.svg"
@@ -227,7 +225,7 @@ export default function Home() {
                       href="https://jbbl.com.np/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/jyoti-bikas-bank.png"
@@ -242,7 +240,7 @@ export default function Home() {
                       href="https://www.nefscun.org.np/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/nefscun.jpg"
@@ -255,12 +253,12 @@ export default function Home() {
                   </div>
                   
                   {/* Duplicate set for seamless loop */}
-                  <div className="flex items-center justify-center space-x-16 min-w-full">
+                  <div className="flex items-center justify-center space-x-8 sm:space-x-12 md:space-x-16 min-w-full">
                     <a 
                       href="https://everestbankltd.com/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/everest-bank.svg"
@@ -275,7 +273,7 @@ export default function Home() {
                       href="https://jbbl.com.np/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/jyoti-bikas-bank.png"
@@ -290,7 +288,7 @@ export default function Home() {
                       href="https://www.nefscun.org.np/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-32 h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
+                      className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer"
                     >
                       <Image
                         src="/images/banks/nefscun.jpg"
@@ -305,15 +303,15 @@ export default function Home() {
               </div>
               
               {/* Subtle gradient overlays for fade effect */}
-              <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10"></div>
-              <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10"></div>
+              <div className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 h-full bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10"></div>
+              <div className="absolute top-0 right-0 w-16 sm:w-24 md:w-32 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
           <SectionTitle
             title="Our Projects"
             subtitle="Explore our portfolio of successful projects."
@@ -323,117 +321,117 @@ export default function Home() {
           <UniqueProjectsCarousel
             limit={8}
             showFilters={true}
-            className="mt-8"
+            className="mt-6 sm:mt-8"
           />
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-          <div className="absolute top-10 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+          <div className="absolute top-10 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+          <div className="absolute top-10 right-10 w-48 h-48 sm:w-72 sm:h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-48 h-48 sm:w-72 sm:h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
         </div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <SectionTitle
             title="Client Testimonials"
             subtitle="What our clients say about our services."
             center={true}
           />
 
-          <div className="max-w-7xl mx-auto mt-12">
+          <div className="max-w-7xl mx-auto mt-8 sm:mt-12">
             {testimonialsLoading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="flex justify-center items-center py-12 sm:py-16">
+                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : displayTestimonials.length > 0 ? (
               <SimpleTestimonialsCarousel
                 testimonials={displayTestimonials}
               />
             ) : (
-              <div className="text-center py-16">
-                <p className="text-gray-500 text-lg">No testimonials available at the moment.</p>
+              <div className="text-center py-12 sm:py-16">
+                <p className="text-gray-500 text-base sm:text-lg">No testimonials available at the moment.</p>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12">
             <div className="lg:col-span-2">
-              <span className="text-blue-700 font-semibold mb-2 block">
+              <span className="text-blue-700 font-semibold mb-2 block text-sm sm:text-base">
                 CONTACT US
               </span>
-              <h2 className="text-3xl font-bold mb-6 text-gray-900">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-900">
                 Get In Touch With Our Team
               </h2>
-              <p className="text-gray-600 mb-8">
+              <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
                 Have questions about our services or want to discuss your
                 project? Contact us today.
               </p>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="flex items-start">
-                  <div className="bg-blue-50 p-3 rounded-full mr-4">
-                    <MapPin className="h-6 w-6 text-blue-700" />
+                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                    <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       Our Location
                     </h4>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 text-xs sm:text-sm">
                       {companyAddress}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="bg-blue-50 p-3 rounded-full mr-4">
-                    <Phone className="h-6 w-6 text-blue-700" />
+                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                    <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       Call Us
                     </h4>
-                    <p className="text-gray-600">{companyPhone}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm">{companyPhone}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="bg-blue-50 p-3 rounded-full mr-4">
-                    <Mail className="h-6 w-6 text-blue-700" />
+                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                    <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       Email Us
                     </h4>
-                    <p className="text-gray-600">{companyEmail}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm break-all">{companyEmail}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-3 bg-gray-50 p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold mb-6 text-gray-900">
+            <div className="lg:col-span-3 bg-gray-50 p-6 sm:p-8 rounded-lg shadow-lg">
+              <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">
                 Send Us a Message
               </h3>
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-gray-700 font-medium mb-2"
+                      className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
                     >
                       Your Name
                     </label>
                     <input
                       type="text"
                       id="name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="John Smith"
                     />
                   </div>
@@ -441,14 +439,14 @@ export default function Home() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-gray-700 font-medium mb-2"
+                      className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
                     >
                       Your Email
                     </label>
                     <input
                       type="email"
                       id="email"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -457,19 +455,19 @@ export default function Home() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-gray-700 font-medium mb-2"
+                    className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
                   >
                     Message
                   </label>
                   <textarea
                     id="message"
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Your message"
                   ></textarea>
                 </div>
 
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="primary" className="w-full sm:w-auto">
                   Send Message
                 </Button>
               </form>

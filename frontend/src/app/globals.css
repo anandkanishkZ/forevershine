@@ -53,6 +53,17 @@
   }
 }
 
+@keyframes slideInLeft {
+  from { 
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes scaleUp {
   from { 
     opacity: 0;
@@ -73,6 +84,38 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Mobile menu animations */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Hero section animations */
 .animate-fade-in {
   animation: fadeIn 1s ease-out;
@@ -86,12 +129,20 @@
   animation: slideInRight 1s ease-out;
 }
 
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out;
+}
+
 .animate-scale-up {
   animation: scaleUp 1s ease-out;
 }
 
 .animate-carousel {
   animation: carousel 20s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }
 
 /* Staggered animation delays */

@@ -78,6 +78,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const readingTime = calculateReadingTime(post.content);
+  
+  const getAuthorInitials = (name?: string, email?: string) => {
+    if (name) {
+      const names = name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return email ? email.substring(0, 2).toUpperCase() : 'FS';
+  };
+
+  const getAuthorName = () => {
+    return post.author.name || post.author.email.split('@')[0];
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -104,7 +119,29 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             
             {/* Meta Information and Share */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-6 border-b border-gray-200">
-              <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-4 sm:mb-0">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-600 mb-4 sm:mb-0">
+                {/* Author with Avatar */}
+                <div className="flex items-center gap-2">
+                  {post.author.profilePhoto ? (
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm">
+                      <Image 
+                        src={getValidImageUrl(post.author.profilePhoto)} 
+                        alt={getAuthorName()}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold border-2 border-blue-100 shadow-sm">
+                      {getAuthorInitials(post.author.name, post.author.email)}
+                    </div>
+                  )}
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-gray-900">{getAuthorName()}</span>
+                    <span className="text-xs text-gray-500">Author</span>
+                  </div>
+                </div>
+                
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-blue-600" />
                   <span className="text-sm">{BlogApiClient.formatDate(post.publishedAt || post.createdAt)}</span>
@@ -141,15 +178,32 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Article Footer */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                {/* Author Info with Avatar */}
                 <div className="mb-4 sm:mb-0">
-                  <p className="text-sm text-gray-600">
-                    Published by <span className="font-medium text-gray-900">{post.author.email.split('@')[0]}</span>
-                  </p>
+                  <div className="flex items-center gap-3">
+                    {post.author.profilePhoto ? (
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm">
+                        <Image 
+                          src={getValidImageUrl(post.author.profilePhoto)} 
+                          alt={getAuthorName()}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold border-2 border-blue-100 shadow-sm">
+                        {getAuthorInitials(post.author.name, post.author.email)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-gray-600">Written by</p>
+                      <p className="font-semibold text-gray-900">{getAuthorName()}</p>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Share Again */}
+                {/* Share Buttons */}
                 <div className="flex items-center">
-                  <span className="text-sm text-gray-600 mr-3">Share:</span>
                   <SocialShareButtons title={post.title} />
                 </div>
               </div>

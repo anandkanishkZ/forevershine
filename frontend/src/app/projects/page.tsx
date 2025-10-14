@@ -115,20 +115,105 @@ const Projects = () => {
       .trim();
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-              <p className="text-gray-600">Loading projects...</p>
-            </div>
+  // Skeleton loading component for grid view
+  const SkeletonProjectCard = () => (
+    <div className="block bg-white rounded-xl shadow-lg overflow-hidden">
+      {/* Image Skeleton */}
+      <div className="relative h-64 bg-gray-200 animate-pulse">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer"></div>
+      </div>
+      
+      {/* Content Skeleton */}
+      <div className="p-6">
+        {/* Category Badge */}
+        <div className="mb-3">
+          <div className="h-6 w-24 bg-gray-200 rounded-full animate-pulse">
+            <div className="h-full w-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded-full"></div>
+          </div>
+        </div>
+        
+        {/* Title */}
+        <div className="mb-3 space-y-2">
+          <div className="h-6 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+        </div>
+        
+        {/* Description */}
+        <div className="mb-4 space-y-2">
+          <div className="h-4 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-4 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+        </div>
+        
+        {/* Footer Info */}
+        <div className="space-y-2">
+          <div className="h-4 w-40 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+
+  // Skeleton loading component for list view
+  const SkeletonProjectListItem = () => (
+    <div className="block bg-white rounded-xl shadow-lg p-6 flex gap-6">
+      {/* Image Skeleton */}
+      <div className="w-32 h-32 flex-shrink-0 bg-gray-200 rounded-lg animate-pulse relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer"></div>
+      </div>
+      
+      {/* Content Skeleton */}
+      <div className="flex-1">
+        {/* Badges */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-5 w-20 bg-gray-200 rounded-full animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded-full"></div>
+          </div>
+        </div>
+        
+        {/* Title */}
+        <div className="mb-2">
+          <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+        </div>
+        
+        {/* Description */}
+        <div className="mb-3 space-y-2">
+          <div className="h-4 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+        </div>
+        
+        {/* Footer Info */}
+        <div className="flex items-center gap-4">
+          <div className="h-4 w-28 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+          <div className="h-4 w-24 bg-gray-200 rounded animate-pulse">
+            <div className="h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-shimmer rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen">
@@ -314,11 +399,17 @@ const Projects = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="text-center">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-                <p className="text-gray-600">Loading our amazing projects...</p>
-              </div>
+            <div className={viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" 
+              : "space-y-6"
+            }>
+              {viewMode === 'grid' ? (
+                // Grid skeleton - show 6 cards
+                [1, 2, 3, 4, 5, 6].map((i) => <SkeletonProjectCard key={i} />)
+              ) : (
+                // List skeleton - show 6 items
+                [1, 2, 3, 4, 5, 6].map((i) => <SkeletonProjectListItem key={i} />)
+              )}
             </div>
           ) : error ? (
             <div className="text-center py-16">
