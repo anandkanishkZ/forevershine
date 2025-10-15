@@ -6,8 +6,9 @@ const nextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true,
-    domains: ['images.unsplash.com', 'localhost'],
+    domains: ['images.unsplash.com', 'localhost', 'forevershine.com.np', 'www.forevershine.com.np'],
     remotePatterns: [
+      // Development - localhost
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -18,6 +19,27 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',
+        pathname: '/api/media/serve/**',
+      },
+      // Production - HTTPS
+      {
+        protocol: 'https',
+        hostname: 'forevershine.com.np',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'forevershine.com.np',
+        pathname: '/api/media/serve/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.forevershine.com.np',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.forevershine.com.np',
         pathname: '/api/media/serve/**',
       },
     ],

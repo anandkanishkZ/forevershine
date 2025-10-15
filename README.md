@@ -2,6 +2,25 @@
 
 A complete web application for Forever Shine Engineering company, featuring a modern Next.js frontend and robust Express.js backend.
 
+## 🚀 Production Deployment
+
+**Ready to deploy to VPS?** We've created comprehensive guides:
+
+- 📖 **[Quick Start Deployment Guide](DEPLOYMENT.md)** - Step-by-step VPS deployment (2-3 hours)
+- 📚 **[Complete Production Guide](PRODUCTION_DEPLOYMENT_GUIDE.md)** - Comprehensive 100-page manual
+- 🔒 **[Security Checklist](SECURITY_CHECKLIST.md)** - Security best practices
+- 📊 **[Deployment Summary](DEPLOYMENT_SUMMARY.md)** - Executive summary & analysis
+
+**Includes:**
+- ✅ Nginx configuration
+- ✅ PM2 process management
+- ✅ SSL/TLS setup (Let's Encrypt)
+- ✅ Database backup automation
+- ✅ Deployment scripts
+- ✅ Security hardening guide
+
+---
+
 ## 🏗️ Project Architecture
 
 This project follows a **monorepo structure** with completely separated frontend and backend applications:
