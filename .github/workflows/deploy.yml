@@ -1,0 +1,232 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      
+      # Backend Build
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+        
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+        
+      # Frontend Build
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.forevershine.com.np/api
+          NEXT_PUBLIC_SITE_URL: https://forevershine.com.np
+          
+      # Upload build artifacts
+      - name: Upload backend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist
+          retention-days: 1
+          
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: |
+            frontend/.next
+            frontend/public
+          retention-days: 1
+
+  deploy-to-vps:
+    name: Deploy to VPS
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist
+          
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend-artifacts
+          
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          # Create deployment package
+          tar -czf deploy-package.tar.gz \
+            --exclude=node_modules \
+            --exclude=.git \
+            --exclude=.next \
+            --exclude=dist \
+            backend/ \
+            frontend/ \
+            ecosystem.config.js \
+            package*.json
+          
+          # Copy to VPS
+          scp deploy-package.tar.gz ${VPS_USER}@${VPS_HOST}:${DEPLOY_PATH}/
+          
+          # Extract and deploy on VPS
+          ssh ${VPS_USER}@${VPS_HOST} << 'ENDSSH'
+            set -e
+            cd ${DEPLOY_PATH}
+            
+            # Backup current deployment
+            if [ -d "current" ]; then
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              mv current backup_${timestamp}
+              # Keep only last 3 backups
+              ls -dt backup_* | tail -n +4 | xargs rm -rf
+            fi
+            
+            # Extract new deployment
+            mkdir -p current
+            tar -xzf deploy-package.tar.gz -C current
+            rm deploy-package.tar.gz
+            
+            # Install dependencies and build
+            cd current/backend
+            npm ci --production
+            npm run db:generate
+            
+            cd ../frontend
+            npm ci --production
+            
+            # Restart services with PM2
+            cd ..
+            pm2 restart ecosystem.config.js --update-env
+            pm2 save
+            
+            echo "Deployment completed successfully!"
+          ENDSSH
+          
+      - name: Run database migrations
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh ${VPS_USER}@${VPS_HOST} << 'ENDSSH'
+            set -e
+            cd ${DEPLOY_PATH}/current/backend
+            
+            # Run migrations
+            npm run db:migrate -- --skip-seed
+            
+            echo "Database migrations completed!"
+          ENDSSH
+          
+      - name: Health check
+        env:
+          HEALTH_CHECK_URL: ${{ secrets.PRODUCTION_API_URL }}/health
+        run: |
+          sleep 10
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${HEALTH_CHECK_URL} || echo "000")
+          if [ "$response" != "200" ]; then
+            echo "Health check failed with status: $response"
+            exit 1
+          fi
+          echo "Health check passed!"
+          
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed!"
+          fi
+
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production')
+    needs: deploy-to-vps
+    
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          
+      - name: Rollback to previous version
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh ${VPS_USER}@${VPS_HOST} << 'ENDSSH'
+            set -e
+            cd ${DEPLOY_PATH}
+            
+            # Find most recent backup
+            latest_backup=$(ls -dt backup_* | head -n 1)
+            
+            if [ -n "$latest_backup" ]; then
+              echo "Rolling back to: $latest_backup"
+              rm -rf current
+              mv $latest_backup current
+              
+              # Restart services
+              cd current
+              pm2 restart ecosystem.config.js
+              pm2 save
+              
+              echo "Rollback completed successfully!"
+            else
+              echo "No backup found for rollback!"
+              exit 1
+            fi
+          ENDSSH
