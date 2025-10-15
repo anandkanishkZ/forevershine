@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://forever-shine-engineering.com/sitemap.xml
+Sitemap: https://forevershine.com.np/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

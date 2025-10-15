@@ -10,7 +10,7 @@ export function generateProjectStructuredData(project: Project) {
     "creator": {
       "@type": "Organization",
       "name": "Forever Shine Engineering",
-      "url": "https://forever-shine-engineering.com"
+      "url": "https://forevershine.com.np"
     },
     "dateCreated": project.createdAt,
     "dateModified": project.updatedAt,
@@ -23,7 +23,7 @@ export function generateProjectStructuredData(project: Project) {
     "isPartOf": {
       "@type": "WebSite",
       "name": "Forever Shine Engineering",
-      "url": "https://forever-shine-engineering.com"
+      "url": "https://forevershine.com.np"
     }
   };
 }
@@ -33,7 +33,7 @@ export function generateOrganizationStructuredData() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Forever Shine Engineering",
-    "url": "https://forever-shine-engineering.com",
+    "url": "https://forevershine.com.np",
     "description": "Professional engineering and construction services provider specializing in residential, commercial, and infrastructure projects.",
     "foundingDate": "2020",
     "areaServed": {
@@ -69,7 +69,7 @@ export function generateBreadcrumbStructuredData(items: Array<{name: string, url
       "@type": "ListItem",
       "position": index + 1,
       "name": item.name,
-      "item": `https://forever-shine-engineering.com${item.url}`
+      "item": `https://forevershine.com.np${item.url}`
     }))
   };
 }

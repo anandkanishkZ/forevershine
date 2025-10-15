@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import publicApiClient from '@/utils/publicApiClient';
+import BlogApiClient from '@/utils/blogApiClient';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://forevershine.com.np';
@@ -71,5 +72,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating sitemap for projects:', error);
   }
 
-  return [...staticPages, ...projectPages];
+  // Dynamic blog post pages
+  let blogPages: MetadataRoute.Sitemap = [];
+  
+  try {
+    const blogApi = new BlogApiClient();
+    const response = await blogApi.getPublishedPosts({ limit: 100 });
+    
+    if (response.success && response.data) {
+      blogPages = response.data.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: post.featured ? 0.8 : 0.6,
+      }));
+    }
+  } catch (error) {
+    console.error('Error generating sitemap for blog posts:', error);
+  }
+
+  return [...staticPages, ...projectPages, ...blogPages];
 }
