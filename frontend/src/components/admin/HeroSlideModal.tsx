@@ -8,6 +8,12 @@ import MediaPicker from '@/components/admin/MediaPicker';
 import { MediaFile } from '@/types/admin';
 import { API_CONFIG } from '@/config/api';
 
+// Debug mode - only active in development
+const DEBUG = process.env.NODE_ENV === 'development';
+const debugLog = (...args: any[]) => {
+  if (DEBUG) console.log('[HeroSlideModal]', ...args);
+};
+
 interface HeroSlide {
   id: string;
   title: string;
@@ -122,10 +128,10 @@ const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
       
       // Handle image preview for existing slides
       if (slide.imageUrl) {
-        console.log('Setting existing slide image preview for:', slide.imageUrl); // Debug log
+        debugLog('Setting existing slide image preview for:', slide.imageUrl);
         
         const processedImageUrl = getImageUrl(slide.imageUrl);
-        console.log('Processed image URL:', processedImageUrl); // Debug log
+        debugLog('Processed image URL:', processedImageUrl);
         
         setImagePreview(processedImageUrl);
         
@@ -211,14 +217,14 @@ const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
   const handleMediaSelect = (file: MediaFile | MediaFile[]) => {
     const selectedFile = Array.isArray(file) ? file[0] : file;
     
-    console.log('Media selected:', selectedFile); // Debug log
+    debugLog('Media selected:', selectedFile);
     
     setSelectedMedia(selectedFile);
     
     // Construct proper image URL for preview using helper function
     const processedImageUrl = getImageUrl(selectedFile.url);
     
-    console.log('Setting image preview to:', processedImageUrl); // Debug log
+    debugLog('Setting image preview to:', processedImageUrl);
     
     setImagePreview(processedImageUrl);
     setFormData(prev => ({

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminDashboardLayout from '@/components/admin/AdminDashboardLayout';
 import MediaPicker from '@/components/admin/MediaPicker';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import apiClient from '@/utils/admin/apiClient';
 import { BlogPost, MediaFile } from '@/types/admin';
 import { getValidImageUrl } from '@/utils/media';
@@ -493,30 +494,23 @@ export default function AdminBlog() {
                                 Blog Post Content
                               </span>
                             </label>
-                            <textarea
-                              required
-                              rows={16}
-                              value={formData.content}
-                              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                              className="w-full px-4 py-4 border-2 border-green-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200 bg-white/70 backdrop-blur-sm resize-none font-serif text-base leading-relaxed"
-                              placeholder="Start writing your amazing blog post content here...
+                            <div className="bg-white rounded-xl p-2">
+                              <RichTextEditor
+                                value={formData.content}
+                                onChange={(content) => setFormData({ ...formData, content })}
+                                placeholder="Start writing your amazing blog post content here...
 
-You can use markdown formatting:
-# Heading 1
-## Heading 2
-**Bold text**
-*Italic text*
-[Link text](https://example.com)
+Use the toolbar above to format your content:
+• Headings for structure
+• Bold, italic, underline for emphasis
+• Lists for organization
+• Links for references
+• Images and videos for visual content
+• Code blocks for technical content
 
 Write engaging, informative content that provides value to your readers!"
-                            />
-                            <div className="flex justify-between items-center mt-2">
-                              <p className="text-xs text-green-600">
-                                💡 Tip: Use headings, lists, and short paragraphs for better readability
-                              </p>
-                              <span className="text-xs text-green-500">
-                                {formData.content.split(' ').filter(word => word.length > 0).length} words
-                              </span>
+                                height="500px"
+                              />
                             </div>
                           </div>
                         </div>

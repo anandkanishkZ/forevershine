@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Metadata } from 'next';
 import BlogApiClient, { BlogPost } from '@/utils/blogApiClient';
 import SocialShareButtons from '@/components/SocialShareButtons';
+import RichTextContent from '@/components/RichTextContent';
 import { getValidImageUrl } from '@/utils/media';
 
 interface BlogPostPageProps {
@@ -171,8 +172,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             )}
 
             {/* Content */}
-            <div className="prose prose-lg max-w-none content-formatting">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            <div className="prose prose-lg max-w-none">
+              <RichTextContent content={post.content} />
             </div>
 
             {/* Article Footer */}

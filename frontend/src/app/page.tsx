@@ -11,19 +11,13 @@ import Button from '@/components/Button';
 import { useSetting } from '@/hooks/useSiteSettings';
 import { apiClient } from '@/utils/admin/apiClient';
 import {
-  MapPin,
   CheckCircle,
-  Phone,
-  Mail,
 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Home() {
   // Dynamic content from settings
   const companyName = useSetting('company_name', 'Forever Shine Engineering');
-  const companyAddress = useSetting('company_address', 'Birta Chowk, Rautahat, Madhesh Province');
-  const companyPhone = useSetting('company_phone', '+977 9805996059 / +977 9861053405');
-  const companyEmail = useSetting('company_email', 'info@forevershine.com.np');
   const companyTagline = useSetting('company_tagline', 'Building Tomorrow Today');
   const companyDescription = useSetting('company_description', 'Professional engineering consultancy and construction services');
 
@@ -359,123 +353,6 @@ export default function Home() {
                 <p className="text-gray-500 text-base sm:text-lg">No testimonials available at the moment.</p>
               </div>
             )}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12">
-            <div className="lg:col-span-2">
-              <span className="text-blue-700 font-semibold mb-2 block text-sm sm:text-base">
-                CONTACT US
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-900">
-                Get In Touch With Our Team
-              </h2>
-              <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
-                Have questions about our services or want to discuss your
-                project? Contact us today.
-              </p>
-
-              <div className="space-y-4 sm:space-y-6">
-                <div className="flex items-start">
-                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
-                    <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      Our Location
-                    </h4>
-                    <p className="text-gray-600 text-xs sm:text-sm">
-                      {companyAddress}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
-                    <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      Call Us
-                    </h4>
-                    <p className="text-gray-600 text-xs sm:text-sm">{companyPhone}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
-                    <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      Email Us
-                    </h4>
-                    <p className="text-gray-600 text-xs sm:text-sm break-all">{companyEmail}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-3 bg-gray-50 p-6 sm:p-8 rounded-lg shadow-lg">
-              <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">
-                Send Us a Message
-              </h3>
-              <form className="space-y-4 sm:space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
-                    >
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="John Smith"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
-                    >
-                      Your Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-gray-700 font-medium mb-2 text-sm sm:text-base"
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={4}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Your message"
-                  ></textarea>
-                </div>
-
-                <Button type="submit" variant="primary" className="w-full sm:w-auto">
-                  Send Message
-                </Button>
-              </form>
-            </div>
           </div>
         </div>
       </section>

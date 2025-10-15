@@ -213,7 +213,9 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                 </h3>
                 <div className="space-y-1">
                   {section.items.map((item) => {
-                    const isActive = pathname === item.href;
+                    // Check if current pathname matches or starts with the item href
+                    // This handles both exact matches and nested routes
+                    const isActive = pathname ? (pathname === item.href || pathname.startsWith(item.href + '/')) : false;
                     const Icon = item.icon;
                     
                     return (
@@ -221,10 +223,10 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                         key={item.name}
                         href={item.href}
                         onClick={() => window.innerWidth < 1024 && onToggle()}
-                        className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                        className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all relative ${
                           isActive
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                            : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-white'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm border-l-4 border-blue-600 dark:border-blue-400'
+                            : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-white border-l-4 border-transparent'
                         }`}
                         aria-current={isActive ? 'page' : undefined}
                       >
@@ -236,7 +238,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                                 : 'text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300'
                             }`}
                           />
-                          <span>{item.name}</span>
+                          <span className={isActive ? 'font-semibold' : ''}>{item.name}</span>
                         </div>
                         {item.badge && (
                           <span className="ml-auto flex-shrink-0 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
